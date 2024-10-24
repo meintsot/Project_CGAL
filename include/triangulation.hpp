@@ -1,7 +1,4 @@
-// triangulation.hpp
-
-#ifndef TRIANGULATION_HPP
-#define TRIANGULATION_HPP
+#pragma once
 
 #include <CGAL/Exact_predicates_exact_constructions_kernel.h>
 #include <CGAL/Constrained_Delaunay_triangulation_2.h>
@@ -22,6 +19,7 @@ typedef CDT::Vertex_handle Vertex_handle;
 typedef CDT::Face_handle Face_handle;
 typedef CDT::Edge Edge;
 typedef CGAL::Polygon_2<Kernel> Polygon_2;
+typedef Kernel::Triangle_2 Triangle;
 
 struct InputData {
     std::string instance_uid;
@@ -44,5 +42,3 @@ struct OutputData {
 InputData parse_input_json(const std::string& filename);
 void write_output_json(const std::string& filename, const OutputData& output_data);
 void perform_triangulation(const InputData& input_data, OutputData& output_data);
-
-#endif // TRIANGULATION_HPP
