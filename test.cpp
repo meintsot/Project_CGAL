@@ -53,134 +53,200 @@ double squared_distance(const Point& p1, const Point& p2) {
 }
 
 
-// Function to insert the circumcenter of an obtuse triangle into the triangulation
-void insert_circumcenter(CDT& cdt, Face_handle face) {
-    // Retrieve the vertices of the triangle
-    Point p1 = face->vertex(0)->point();
-    Point p2 = face->vertex(1)->point();
-    Point p3 = face->vertex(2)->point();
-
-    // Calculate the circumcenter of the triangle
-    Point circumcenter = CGAL::circumcenter(p1, p2, p3);
-
-    // Insert the circumcenter into the triangulation
-    cdt.insert(circumcenter);
-}
 
 
+// CIRCUMCENTER
 
 
 
 // Function to insert the circumcenter of an obtuse triangle into the triangulation
-int trully_insert_circumcenter_if_beneficial(CDT& cdt, Face_handle face) {
-    // Step 1: Count obtuse triangles before insertion
-    int initial_obtuse_count = count_obtuse_triangles(cdt);
+void insert_circumcenter(CDT& cdt, Face_handle face, std::vector<Point>& steiner_points) {
 
-    // Step 2: Compute circumcenter
+    // Find circumcenter
     Point p1 = face->vertex(0)->point();
     Point p2 = face->vertex(1)->point();
     Point p3 = face->vertex(2)->point();
     Point circumcenter = CGAL::circumcenter(p1, p2, p3);
 
-    // int obtuse_triangle_count = count_obtuse_triangles(cdt);
-    // std::cout << " PRIN Number of obtuse triangles: " << obtuse_triangle_count << std::endl;
 
-
-    // Step 3: Insert circumcenter and update triangulation
+    // Insert circumcenter and update triangulation
     CDT::Vertex_handle new_vertex = cdt.insert(circumcenter);
-
-    // obtuse_triangle_count = count_obtuse_triangles(cdt);
-    // std::cout << " META Number of obtuse triangles: " << obtuse_triangle_count << std::endl;
-
-
-    // Step 4: Count obtuse triangles after insertion
-    int new_obtuse_count = count_obtuse_triangles(cdt);
-
-    // Step 5: Compare counts and decide whether to keep or remove the point
-    if (new_obtuse_count > initial_obtuse_count) {
-        // Undo the insertion by removing the point
-        cdt.remove(new_vertex);
-
-        // obtuse_triangle_count = count_obtuse_triangles(cdt);
-        // std::cout << " TELIKA Number of obtuse triangles: " << obtuse_triangle_count << std::endl;
-        // sleep(2);
-
-        return 0;
-    }
-
-    // obtuse_triangle_count = count_obtuse_triangles(cdt);
-    // std::cout << " TELIKA Number of obtuse triangles: " << obtuse_triangle_count << std::endl;
-    // sleep(2);
-
-    return 1;
+    steiner_points.push_back(circumcenter);
 
 }
 
-
-
-
 // Function to insert the circumcenter of an obtuse triangle into the triangulation
-int insert_circumcenter_if_beneficial(CDT cdt, Face_handle face) {
-    // Step 1: Count obtuse triangles before insertion
+int is_circumcenter_beneficial(CDT cdt, Face_handle face) {
+    
+    // Keep track of obtuses triangles in the start to see if the insertion will reduce the number of obtuse triangles
     int initial_obtuse_count = count_obtuse_triangles(cdt);
 
-    // Step 2: Compute circumcenter
+    // Find circumcenter
     Point p1 = face->vertex(0)->point();
     Point p2 = face->vertex(1)->point();
     Point p3 = face->vertex(2)->point();
     Point circumcenter = CGAL::circumcenter(p1, p2, p3);
 
-    // int obtuse_triangle_count = count_obtuse_triangles(cdt);
-    // std::cout << " PRIN Number of obtuse triangles: " << obtuse_triangle_count << std::endl;
 
-
-    // Step 3: Insert circumcenter and update triangulation
+    // Insert circumcenter and update triangulation
     CDT::Vertex_handle new_vertex = cdt.insert(circumcenter);
 
-    // obtuse_triangle_count = count_obtuse_triangles(cdt);
-    // std::cout << " META Number of obtuse triangles: " << obtuse_triangle_count << std::endl;
+   
 
 
-    // Step 4: Count obtuse triangles after insertion
     int new_obtuse_count = count_obtuse_triangles(cdt);
 
-    // Step 5: Compare counts and decide whether to keep or remove the point
-    if (new_obtuse_count > initial_obtuse_count) {
+    // Compare counts and decide whether to keep or remove the point
+    if (new_obtuse_count < initial_obtuse_count) {
         // Undo the insertion by removing the point
-        cdt.remove(new_vertex);
+        //cdt.remove(new_vertex);
 
-        // obtuse_triangle_count = count_obtuse_triangles(cdt);
-        // std::cout << " TELIKA Number of obtuse triangles: " << obtuse_triangle_count << std::endl;
-        // sleep(2);
-
-        return 0;
+        
+        return 1;
     }
 
-    // obtuse_triangle_count = count_obtuse_triangles(cdt);
-    // std::cout << " TELIKA Number of obtuse triangles: " << obtuse_triangle_count << std::endl;
-    // sleep(2);
-
-    return 1;
+   
+    return 0;
 
 }
 
 // Main function to refine the CDT and reduce obtuse triangles using circumcenter insertion
-void refine_obtuse_triangles_with_circumcenters(CDT& cdt) {
+void method_circumcenters(CDT& cdt, std::vector<Point>& steiner_points) {
     bool done = false;
     int count = 0;
 
     while (!done) {
-        done = true; // Assume we're done unless we find an obtuse triangle
-        if (count++ == 100000000)
-            break;
+        done = true; 
+        //if (count++ == 10000)
+           // break;
 
         for (auto face = cdt.finite_faces_begin(); face != cdt.finite_faces_end(); ++face) {
             
             Triangle triangle = cdt.triangle(face);
             if (is_obtuse(triangle)) {
-                // Insert the circumcenter and re-triangulate
-                if ( insert_circumcenter_if_beneficial(cdt, face) == 1 ){ // New point inserted
-                    trully_insert_circumcenter_if_beneficial(cdt, face);
+                // First check if the insertion would actually reduce the total number of obtuse triangles, and perform it only if it does
+                if ( is_circumcenter_beneficial(cdt, face) == 1 ){ 
+                    insert_circumcenter(cdt, face, steiner_points);
+                    done = false; // Keep iterating since we inserted a new point
+                    break; // Rebuild the triangulation and start checking again
+                }
+            }
+
+        }
+        // no more improvement
+
+    }
+}
+
+
+
+
+
+
+
+// MIDPOINT
+
+
+void insert_midpoint(CDT& cdt, Face_handle face, std::vector<Point>& steiner_points) {
+
+    // Find midpoint
+    Point p1 = face->vertex(0)->point();
+    Point p2 = face->vertex(1)->point();
+    Point p3 = face->vertex(2)->point();
+
+    // Find the longest edge
+    double d1 = squared_distance(p1, p2);
+    double d2 = squared_distance(p2, p3);
+    double d3 = squared_distance(p3, p1);
+
+    Point midpoint;
+    if (d1 >= d2 && d1 >= d3) {
+        // Longest edge is between p1 and p2
+        midpoint = CGAL::midpoint(p1, p2);
+        cdt.insert(midpoint);
+    } else if (d2 >= d1 && d2 >= d3) {
+        // Longest edge is between p2 and p3
+        midpoint = CGAL::midpoint(p2, p3);
+        cdt.insert(midpoint);
+    } else {
+        // Longest edge is between p3 and p1
+        midpoint = CGAL::midpoint(p3, p1);
+        cdt.insert(midpoint);
+    }
+    steiner_points.push_back(midpoint);
+
+}
+
+// Function to insert the circumcenter of an obtuse triangle into the triangulation
+int is_midpoint_beneficial(CDT cdt, Face_handle face) {
+    
+    // Keep track of obtuses triangles in the start to see if the insertion will reduce the number of obtuse triangles
+    int initial_obtuse_count = count_obtuse_triangles(cdt);
+
+    // Find midpoint
+    Point p1 = face->vertex(0)->point();
+    Point p2 = face->vertex(1)->point();
+    Point p3 = face->vertex(2)->point();
+
+
+    // Find the longest edge
+    double d1 = squared_distance(p1, p2);
+    double d2 = squared_distance(p2, p3);
+    double d3 = squared_distance(p3, p1);
+
+    if (d1 >= d2 && d1 >= d3) {
+        // Longest edge is between p1 and p2
+        Point midpoint = CGAL::midpoint(p1, p2);
+        cdt.insert(midpoint);
+    } else if (d2 >= d1 && d2 >= d3) {
+        // Longest edge is between p2 and p3
+        Point midpoint = CGAL::midpoint(p2, p3);
+        cdt.insert(midpoint);
+    } else {
+        // Longest edge is between p3 and p1
+        Point midpoint = CGAL::midpoint(p3, p1);
+        cdt.insert(midpoint);
+    }
+
+    int new_obtuse_count = count_obtuse_triangles(cdt);
+
+    // Compare counts and decide whether to keep or remove the point
+    if (new_obtuse_count < initial_obtuse_count) {
+        // Undo the insertion by removing the point
+        //cdt.remove(new_vertex);
+
+        // obtuse_triangle_count = count_obtuse_triangles(cdt);
+        // std::cout << " TELIKA Number of obtuse triangles: " << obtuse_triangle_count << std::endl;
+        // sleep(2);
+
+        return 1;
+    }
+
+    // obtuse_triangle_count = count_obtuse_triangles(cdt);
+    // std::cout << " TELIKA Number of obtuse triangles: " << obtuse_triangle_count << std::endl;
+    // sleep(2);
+
+    return 0;
+
+}
+
+
+void method_midpoints(CDT& cdt, std::vector<Point>& steiner_points) {
+    bool done = false;
+    int count = 0;
+
+    while (!done) {
+        done = true; 
+        //if (count++ == 10000)
+            //break;
+
+        for (auto face = cdt.finite_faces_begin(); face != cdt.finite_faces_end(); ++face) {
+            
+            Triangle triangle = cdt.triangle(face);
+            if (is_obtuse(triangle)) {
+                // First check if the insertion would actually reduce the total number of obtuse triangles, and perform it only if it does
+                if ( is_midpoint_beneficial(cdt, face) == 1 ){ 
+                    insert_midpoint(cdt, face, steiner_points);
                     done = false; // Keep iterating since we inserted a new point
                     break; // Rebuild the triangulation and start checking again
                 }
@@ -189,27 +255,6 @@ void refine_obtuse_triangles_with_circumcenters(CDT& cdt) {
         }
     }
 }
-
-// void refine_obtuse_triangles_with_circumcenters2(CDT& cdt) {
-//     bool done = false;
-//     int count = 0;
-
-
-//     for (auto face = cdt.finite_faces_begin(); face != cdt.finite_faces_end(); ++face) {
-            
-//             Triangle triangle = cdt.triangle(face);
-//             if (is_obtuse(triangle)) {
-//                 // Insert the circumcenter and re-triangulate
-//                 insert_circumcenter(cdt, face);
-//                 break;
-//             }
-
-//         }
-    
-// }
-
-//final
-
 
 
 int main() 
@@ -242,19 +287,34 @@ int main()
         cdt.insert_constraint(points[constraint.first], points[constraint.second]);
     }
 
+
+    std::vector<Point> steiner_points;
+
+
     int obtuse_triangle_count = count_obtuse_triangles(cdt);
     std::cout << "Number of obtuse triangles: " << obtuse_triangle_count << std::endl;
 
     // Draw the triangulation using CGAL's draw function
     CGAL::draw(cdt);
 
-    refine_obtuse_triangles_with_circumcenters(cdt);
+
+    method_circumcenters(cdt, steiner_points);
+    method_midpoints(cdt, steiner_points);
 
     obtuse_triangle_count = count_obtuse_triangles(cdt);
     std::cout << "Number of obtuse triangles: " << obtuse_triangle_count << std::endl;
 
     // Draw the triangulation using CGAL's draw function
     CGAL::draw(cdt);
+
+    std::cout << "Steiner points inserted:\n";
+    for (const auto& sp : steiner_points) {
+        std::cout << "Point(" << sp.x() << ", " << sp.y() << ")\n";
+    }
+    
+    std::cout << "Number of Steiner points: " << steiner_points.size() << "\n";
+
+
 
     return 0;
 }
