@@ -38,7 +38,3 @@ struct OutputData {
     std::vector<std::string> steiner_points_y;
     std::vector<std::vector<int>> edges;
 };
-
-InputData parse_input_json(const std::string& filename);
-void write_output_json(const std::string& filename, const OutputData& output_data);
-void perform_triangulation(const InputData& input_data, OutputData& output_data);
