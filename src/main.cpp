@@ -8,8 +8,9 @@
 #include "triangulationUtils.hpp"
 #include "triangulationMethod.hpp"
 #include "circumCenterMethod.hpp"
+#include "midpointMethod.hpp"
 
-void perform_triangulation(const InputData& input_data, OutputData& output_data) {
+void perform_triangulation(int methodType, const InputData& input_data, OutputData& output_data) {
     CDT cdt;
 
     std::vector<Point> points;
@@ -42,7 +43,20 @@ void perform_triangulation(const InputData& input_data, OutputData& output_data)
     }
     int obtuse_triangle_count = TriangulationUtils::countObtuseTriangles(cdt);
     std::cout << "Number of obtuse triangles: " << obtuse_triangle_count << std::endl;
-    TriangulationMethod* method = new CircumCenterMethod();
+    TriangulationMethod* method = nullptr;
+    switch (methodType)
+    {
+    case 1:
+        method = new CircumCenterMethod();
+        break;
+    case 2:
+        method = new MidpointMethod();
+        break;
+    
+    default:
+        break;
+    }
+    
     method->execute(cdt, steinerPoints);
     delete method;
     obtuse_triangle_count = TriangulationUtils::countObtuseTriangles(cdt);
@@ -79,10 +93,15 @@ void perform_triangulation(const InputData& input_data, OutputData& output_data)
     }
 }
 
-int main() {
+int main(int argc, const char* argv[]) {
+    if (argc != 4) {
+        std::cout << "Usage: " << argv[0] << " <inputFile> <outputFile> <method>" << std::endl;
+        return 1;
+    }
     // Input and output file paths
-    std::string input_filename = "data/input.json";
-    std::string output_filename = "data/output.json";
+    std::string input_filename = argv[1];
+    std::string output_filename = argv[2];
+    int method = std::stoi(argv[3]);
 
     // Parse input JSON
     InputData input_data = JsonUtils::parseInputJson(input_filename);
@@ -91,7 +110,7 @@ int main() {
     OutputData output_data;
 
     // Perform triangulation
-    perform_triangulation(input_data, output_data);
+    perform_triangulation(method, input_data, output_data);
 
     // Write output JSON
     JsonUtils::writeOutputJson(output_filename, output_data);

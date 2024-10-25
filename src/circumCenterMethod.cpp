@@ -1,5 +1,10 @@
+#include <iostream>
 #include "circumCenterMethod.hpp"
 #include "triangulationUtils.hpp"
+
+CircumCenterMethod::CircumCenterMethod() {
+    std::cout << "CircumCenterMethod executed" << std::endl;
+}
 
 // Function to insert the circumcenter of an obtuse triangle into the triangulation
 void CircumCenterMethod::insertCircumcenter(CDT& cdt, Face_handle face, std::vector<Point>& steiner_points) {
