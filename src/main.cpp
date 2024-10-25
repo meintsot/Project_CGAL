@@ -9,6 +9,8 @@
 #include "triangulationMethod.hpp"
 #include "circumCenterMethod.hpp"
 #include "midpointMethod.hpp"
+#include "centroidMethod.hpp"
+
 
 void perform_triangulation(int methodType, const InputData& input_data, OutputData& output_data) {
     CDT cdt;
@@ -28,12 +30,12 @@ void perform_triangulation(int methodType, const InputData& input_data, OutputDa
     }
 
     // Insert region boundary constraints
-    // int rb_size = input_data.region_boundary.size();
-    // for (int i = 0; i < rb_size; ++i) {
-    //     int idx1 = input_data.region_boundary[i];
-    //     int idx2 = input_data.region_boundary[(i + 1) % rb_size];
-    //     cdt.insert_constraint(vertex_handles[idx1], vertex_handles[idx2]);
-    // }
+    int rb_size = input_data.region_boundary.size();
+    for (int i = 0; i < rb_size; ++i) {
+        int idx1 = input_data.region_boundary[i];
+        int idx2 = input_data.region_boundary[(i + 1) % rb_size];
+        cdt.insert_constraint(vertex_handles[idx1], vertex_handles[idx2]);
+    }
 
     // Insert additional constraints
     for (const auto& constraint : input_data.additional_constraints) {
@@ -41,8 +43,12 @@ void perform_triangulation(int methodType, const InputData& input_data, OutputDa
         int idx2 = constraint[1];
         cdt.insert_constraint(vertex_handles[idx1], vertex_handles[idx2]);
     }
+
+    // before
+    CGAL::draw(cdt);
     int obtuse_triangle_count = TriangulationUtils::countObtuseTriangles(cdt);
     std::cout << "Number of obtuse triangles: " << obtuse_triangle_count << std::endl;
+
     TriangulationMethod* method = nullptr;
     switch (methodType)
     {
@@ -52,6 +58,9 @@ void perform_triangulation(int methodType, const InputData& input_data, OutputDa
     case 2:
         method = new MidpointMethod();
         break;
+    case 3:
+        method = new CentroidMethod();
+        break;
     
     default:
         break;
@@ -59,6 +68,9 @@ void perform_triangulation(int methodType, const InputData& input_data, OutputDa
     
     method->execute(cdt, steinerPoints);
     delete method;
+
+    // after
+    CGAL::draw(cdt);
     obtuse_triangle_count = TriangulationUtils::countObtuseTriangles(cdt);
     std::cout << "Number of obtuse triangles: " << obtuse_triangle_count << std::endl;
 

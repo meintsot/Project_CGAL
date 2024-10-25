@@ -45,3 +45,7 @@ int TriangulationUtils::countObtuseTriangles(const CDT& cdt) {
 FT TriangulationUtils::squaredDistance(const Point& p1, const Point& p2) {
     return CGAL::squared_distance(p1, p2);
 }
+
+Point TriangulationUtils::quadrilateralCentroid(const Point& A, const Point& B, const Point& C, const Point& D) {
+    return Point((A.x() + B.x() + C.x() + D.x()) / 4, (A.y() + B.y() + C.y() + D.y()) / 4);
+}

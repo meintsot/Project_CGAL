@@ -11,4 +11,6 @@ public:
     static int countObtuseTriangles(const CDT&);
 
     static FT squaredDistance(const Point& p1, const Point& p2);
+
+    static Point quadrilateralCentroid(const Point& A, const Point& B, const Point& C, const Point& D);
 };
