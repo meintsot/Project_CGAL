@@ -66,6 +66,8 @@ set(SRC_FILES
   src/circumCenterMethod.cpp
   src/midpointMethod.cpp
   src/centroidMethod.cpp
+  src/oneCentroid.cpp
+  src/projectionMethod.cpp
 )
 
 # Creating entries for target: triangulation

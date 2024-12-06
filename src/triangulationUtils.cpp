@@ -41,6 +41,25 @@ int TriangulationUtils::countObtuseTriangles(const CDT& cdt) {
     return obtuse_count;
 }
 
+// Function to compute the centroid of a triangle
+Point TriangulationUtils::computeCentroid(const Point& p1, const Point& p2, const Point& p3) {
+    return Point(
+        (p1.x() + p2.x() + p3.x()) / 3.0,
+        (p1.y() + p2.y() + p3.y()) / 3.0
+    );
+}
+
+int TriangulationUtils::findObtuseAngle(const Point& p1, const Point& p2, const Point& p3) {
+        FT a2 = TriangulationUtils::squaredDistance(p2, p3); // Opposite of p1
+        FT b2 = TriangulationUtils::squaredDistance(p1, p3); // Opposite of p2
+        FT c2 = TriangulationUtils::squaredDistance(p1, p2); // Opposite of p3
+
+        if (a2 > b2 + c2) return 0; // Angle at p1 is obtuse
+        if (b2 > a2 + c2) return 1; // Angle at p2 is obtuse
+        if (c2 > a2 + b2) return 2; // Angle at p3 is obtuse
+        return -1; // No obtuse angle
+    }
+
 // Function to compute the squared distance between two points
 FT TriangulationUtils::squaredDistance(const Point& p1, const Point& p2) {
     return CGAL::squared_distance(p1, p2);

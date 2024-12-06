@@ -1,9 +1,8 @@
 #pragma once
-
 #include <CGAL/Exact_predicates_exact_constructions_kernel.h>
 #include <CGAL/Constrained_Delaunay_triangulation_2.h>
 #include <CGAL/Polygon_2.h>
-
+#include <CGAL/Line_2.h>
 #include <vector>
 #include <string>
 #include <unordered_map>
@@ -20,6 +19,8 @@ typedef CDT::Face_handle Face_handle;
 typedef CDT::Edge Edge;
 typedef CGAL::Polygon_2<Kernel> Polygon_2;
 typedef Kernel::Triangle_2 Triangle;
+typedef Kernel::Line_2 Line;
+
 
 struct InputData {
     std::string instance_uid;

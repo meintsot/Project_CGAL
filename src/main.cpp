@@ -10,6 +10,8 @@
 #include "circumCenterMethod.hpp"
 #include "midpointMethod.hpp"
 #include "centroidMethod.hpp"
+#include "oneCentroid.hpp"
+#include "projectionMethod.hpp"
 
 
 void perform_triangulation(int methodType, const InputData& input_data, OutputData& output_data) {
@@ -31,11 +33,11 @@ void perform_triangulation(int methodType, const InputData& input_data, OutputDa
 
     // Insert region boundary constraints
     int rb_size = input_data.region_boundary.size();
-    for (int i = 0; i < rb_size; ++i) {
-        int idx1 = input_data.region_boundary[i];
-        int idx2 = input_data.region_boundary[(i + 1) % rb_size];
-        cdt.insert_constraint(vertex_handles[idx1], vertex_handles[idx2]);
-    }
+        //for (int i = 0; i < rb_size; ++i) {
+        //  int idx1 = input_data.region_boundary[i];
+        //    int idx2 = input_data.region_boundary[(i + 1) % rb_size];
+        //      cdt.insert_constraint(vertex_handles[idx1], vertex_handles[idx2]);
+        //    }
 
     // Insert additional constraints
     for (const auto& constraint : input_data.additional_constraints) {
@@ -45,7 +47,7 @@ void perform_triangulation(int methodType, const InputData& input_data, OutputDa
     }
 
     // before
-    CGAL::draw(cdt);
+    //CGAL::draw(cdt);
     int obtuse_triangle_count = TriangulationUtils::countObtuseTriangles(cdt);
     std::cout << "Number of obtuse triangles: " << obtuse_triangle_count << std::endl;
 
@@ -61,7 +63,12 @@ void perform_triangulation(int methodType, const InputData& input_data, OutputDa
     case 3:
         method = new CentroidMethod();
         break;
-    
+    case 4:
+        method = new oneCentroidMethod();
+        break;
+    case 5:
+        method = new ProjectionMethod();
+        break;
     default:
         break;
     }
@@ -70,7 +77,7 @@ void perform_triangulation(int methodType, const InputData& input_data, OutputDa
     delete method;
 
     // after
-    CGAL::draw(cdt);
+    //CGAL::draw(cdt);
     obtuse_triangle_count = TriangulationUtils::countObtuseTriangles(cdt);
     std::cout << "Number of obtuse triangles: " << obtuse_triangle_count << std::endl;
 
@@ -81,10 +88,19 @@ void perform_triangulation(int methodType, const InputData& input_data, OutputDa
     // Steiner points x and y coordinates
     for (const auto& p : steinerPoints) {
         std::stringstream ss_x, ss_y;
-        ss_x << CGAL::to_double(p.x());
-        ss_y << CGAL::to_double(p.y());
+
+        // fix ergasia 1 mistake
+        auto exact_x = CGAL::exact(p.x());
+        ss_x << exact_x.get_num() << "/" << exact_x.get_den();
         output_data.steiner_points_x.push_back(ss_x.str());
+
+        auto exact_y = CGAL::exact(p.y());
+        ss_y << exact_y.get_num() << "/" << exact_y.get_den();
         output_data.steiner_points_y.push_back(ss_y.str());
+        // ss_x << CGAL::to_double(p.x());
+        // ss_y << CGAL::to_double(p.y());
+        // output_data.steiner_points_x.push_back(ss_x.str());
+        // output_data.steiner_points_y.push_back(ss_y.str());
     }
 
     // Edges
