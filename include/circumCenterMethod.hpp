@@ -7,7 +7,7 @@ class CircumCenterMethod : public TriangulationMethod {
 public:
     CircumCenterMethod();
     
-    void execute(CDT& cdt, std::vector<Point>& steiner_points) override;
+    void execute(CDT& cdt,Face_handle face , std::vector<Point>& steiner_points) override;
 
     // Function to insert the circumcenter of an obtuse triangle into the triangulation
     void insertCircumcenter(CDT&, Face_handle, std::vector<Point>&);

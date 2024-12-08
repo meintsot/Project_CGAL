@@ -17,4 +17,6 @@ public:
     static Point computeCentroid(const Point& p1, const Point& p2, const Point& p3);
     
     static int findObtuseAngle(const Point& p1, const Point& p2, const Point& p3);
+
+    static bool is_point_inside_convex_hull(const CDT& cdt, const Point& point);
 };

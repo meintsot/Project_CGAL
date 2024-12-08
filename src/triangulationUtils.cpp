@@ -1,5 +1,9 @@
 #include "triangulation.hpp"
 #include "triangulationUtils.hpp"
+#include <CGAL/convex_hull_2.h>
+#include <CGAL/Polygon_2.h>
+
+
 
 bool TriangulationUtils::isObtuseTriangle(const Point& a, const Point& b, const Point& c) {
     // Compute the squared lengths of the sides
@@ -59,6 +63,23 @@ int TriangulationUtils::findObtuseAngle(const Point& p1, const Point& p2, const 
         if (c2 > a2 + b2) return 2; // Angle at p3 is obtuse
         return -1; // No obtuse angle
     }
+
+bool TriangulationUtils::is_point_inside_convex_hull(const CDT& cdt, const Point& point) {
+    std::vector<Point> vertices;
+    for (auto vit = cdt.finite_vertices_begin(); vit != cdt.finite_vertices_end(); ++vit) {
+        vertices.push_back(vit->point());
+    }
+
+    // Compute the convex hull of the vertices
+    std::vector<Point> convex_hull;
+    CGAL::convex_hull_2(vertices.begin(), vertices.end(), std::back_inserter(convex_hull));
+
+    // We need to convert it to polygon to check
+    CGAL::Polygon_2<Kernel> hull_polygon(convex_hull.begin(), convex_hull.end());
+
+    // Check if the point is inside
+    return hull_polygon.bounded_side(point) != CGAL::ON_UNBOUNDED_SIDE;
+}
 
 // Function to compute the squared distance between two points
 FT TriangulationUtils::squaredDistance(const Point& p1, const Point& p2) {

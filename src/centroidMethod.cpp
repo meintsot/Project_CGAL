@@ -75,28 +75,27 @@ bool CentroidMethod::isCentroidBeneficial(CDT cdt, Face_handle face) {
     return new_obtuse_count < initial_obtuse_count;
 }
 
-void CentroidMethod::execute(CDT& cdt, std::vector<Point>& steiner_points) {
+void CentroidMethod::execute(CDT& cdt,Face_handle face , std::vector<Point>& steiner_points) {
     bool done = false;
     int count = 0;
 
-    while (!done) {
-        done = true;
-        if(count++ == 1000) break;
+    // while (!done) {
+    //     done = true;
 
 
-        for (auto face = cdt.finite_faces_begin(); face != cdt.finite_faces_end(); ++face) {
+    //     for (auto face = cdt.finite_faces_begin(); face != cdt.finite_faces_end(); ++face) {
 
-            Triangle triangle = cdt.triangle(face);
-            auto is_obtuse = TriangulationUtils::isObtuseTriangle(triangle);
-            if (is_obtuse) {
+    //         Triangle triangle = cdt.triangle(face);
+    //         auto is_obtuse = TriangulationUtils::isObtuseTriangle(triangle);
+    //         if (is_obtuse) {
 
-                auto is_centroid_beneficial = this->isCentroidBeneficial(cdt, face);
-                if (is_centroid_beneficial) {
-                    this->insertCentroid(cdt, face, steiner_points);
-                    done = false;  // Keep iterating since we inserted a new point
-                    break;  // Rebuild the triangulation and start checking again
-                }
-            }
-        }
-    }
+    //             auto is_centroid_beneficial = this->isCentroidBeneficial(cdt, face);
+    //             if (is_centroid_beneficial) {
+                     this->insertCentroid(cdt, face, steiner_points);
+    //                 done = false;  // Keep iterating since we inserted a new point
+    //                 break;  // Rebuild the triangulation and start checking again
+    //             }
+    //         }
+    //     }
+    // }
 }
