@@ -1,13 +1,16 @@
 #pragma once
 #include <CGAL/Exact_predicates_exact_constructions_kernel.h>
 #include <CGAL/Constrained_Delaunay_triangulation_2.h>
-#include <CGAL/Polygon_2.h>
 #include <CGAL/Line_2.h>
 #include <vector>
 #include <string>
 #include <unordered_map>
-
 #include <nlohmann/json.hpp>
+#include <CGAL/Simple_cartesian.h>
+#include <CGAL/Polygon_2.h>
+#include <CGAL/number_utils_classes.h>
+#include <cmath>
+#include <random>
 
 typedef CGAL::Exact_predicates_exact_constructions_kernel Kernel;
 typedef Kernel::FT FT;

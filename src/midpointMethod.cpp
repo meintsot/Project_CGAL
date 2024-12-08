@@ -74,25 +74,12 @@ bool MidpointMethod::isMidpointBeneficial(CDT cdt, Face_handle face) {
 }
 
 void MidpointMethod::execute(CDT& cdt,Face_handle face , std::vector<Point>& steiner_points) {
-    bool done = false;
-    int count = 0;
+    this->insertMidpoint(cdt, face, steiner_points);
+}
 
-    // while (!done) {
-    //     done = true; 
+double MidpointMethod::antColoniesHeuristic(CDT& cdt, Face_handle face, FT radiusToHeightRatio) {
+    auto rho = CGAL::to_double(radiusToHeightRatio);
+    auto heuristic = (3 - 2 * rho) / 3;
 
-    //     for (auto face = cdt.finite_faces_begin(); face != cdt.finite_faces_end(); ++face) {
-            
-    //         Triangle triangle = cdt.triangle(face);
-    //         auto is_obtuse = TriangulationUtils::isObtuseTriangle(triangle);
-    //         if (is_obtuse) {
-    //             // First check if the insertion would actually reduce the total number of obtuse triangles, and perform it only if it does
-    //             auto is_midpoint_beneficial = this->isMidpointBeneficial(cdt, face);
-    //             if (is_midpoint_beneficial){ 
-                     this->insertMidpoint(cdt, face, steiner_points);
-    //                 done = false; // Keep iterating since we inserted a new point
-    //                 break; // Rebuild the triangulation and start checking again
-    //             }
-    //         }
-    //     }
-    // }
+    return heuristic < 0 ? 0 : heuristic;
 }

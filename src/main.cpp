@@ -90,7 +90,7 @@ int find_best_method(CDT cdt, Face_handle face){
 
 }
 
-void local_search( CDT& cdt, std::vector<Point>& steinerPoints){
+void local_search(CDT& cdt, std::vector<Point>& steinerPoints){
 
     TriangulationMethod* method = nullptr;
     bool done = false;
@@ -144,7 +144,6 @@ void local_search( CDT& cdt, std::vector<Point>& steinerPoints){
         // if we reached here, it means that couldn't reduce the obtuse triangles no matter the method        
     }
 }
-
 
 
 // SA
@@ -217,11 +216,129 @@ void simulated_annealing(CDT& cdt, std::vector<Point>& steinerPoints){
 }
 
 
+// Ant Colonies
+void evaluate_method(TriangulationMethod* method, double a, double b, int obtuseCountOld, int obtuseCountNew, std::vector<Point>& steinerPoints, double previousEnergy, CDT& newCdt) {
+    double energyDelta = calculateEnergy(newCdt, a, b, steinerPoints) - previousEnergy;
+    if (energyDelta > method->getEnergyDelta())
+    {
+        int steinerCount = steinerPoints.size();
+        double pheromonesDelta = obtuseCountOld == obtuseCountNew ? 0 : 1 / (1 + a * obtuseCountNew + b * steinerCount);
+        method->setAntColonyCdt(newCdt);
+        method->setAntColonySteinerPoints(steinerPoints);
+        method->setPheromonesDelta(pheromonesDelta);
+        method->setEnergyDelta(energyDelta);
+    }
+}
 
+void update_pheromones(TriangulationMethod* method, double pheromonesEvaporation) {
+    double pheromones = method->getPheromones();
+    double pheromonesDelta = method->getPheromonesDelta();
+    pheromones = (1 - pheromonesEvaporation) * pheromones + pheromonesDelta;
+    method->setPheromones(pheromones);
+}
 
+void ant_colonies(CDT& cdt, std::vector<Point>& steinerPoints) {
+    int number_of_points = cdt.number_of_vertices();
+    int x = 1;
+    int y = 2;
+    TriangulationMethod* bestMethod = nullptr;
+    int L = 10; // total cycles
+    std::vector<TriangulationMethod*> methods = std::vector<TriangulationMethod*>(4);
+    methods[0] = new ProjectionMethod();
+    methods[1] = new MidpointMethod();
+    methods[2] = new CentroidMethod();
+    methods[3] = new CircumCenterMethod();
+    std::vector<double> methodProbabilities = std::vector<double>(4);
 
+    // for each method, initialize pheromones
+    for (auto method : methods) {
+        method->setPheromones(0.25); // 1 / number of methods
+    }
+    
+    int K = number_of_points / 4;
 
+    for (int c = 0; c < L; c++) // for each cycle
+    {
+        for (int ant = 0; ant < K; ant++)
+        {
+            auto obtuseTriangle = TriangulationUtils::getRandomObtuseTriangle(cdt); // select random obtuse triangle
+            // for each method calculate the probability based on pheromones and heuristic
+            for (int i = 0; i < 4; i++)
+            {
+                TriangulationMethod* method = methods[i];
+                methodProbabilities[i] = x * method->getPheromones() + y * method->antColoniesHeuristic(cdt, obtuseTriangle, 1.0);
+            }
+            double totalProbability = 0;
+            for (auto probability : methodProbabilities)
+            {
+                totalProbability += probability;
+            }
+            // Calculate the probability of each method
+            for (int i = 0; i < 4; i++)
+            {
+                methodProbabilities[i] /= totalProbability;
+            }
 
+            // Select a method based on the probabilities
+            double random = static_cast<double>(std::rand()) / RAND_MAX;
+            double cumulativeProbability = 0;
+            TriangulationMethod* selectedMethod = nullptr;
+            int methodIndex;
+            for (methodIndex = 0; methodIndex < 4; methodIndex++)
+            {
+                cumulativeProbability += methodProbabilities[methodIndex];
+                if (random <= cumulativeProbability)
+                {
+                    selectedMethod = methods[methodIndex];
+                    break;
+                }
+            }
+
+            // Execute the selected method
+            CDT newCdt = cdt;
+            std::vector<Point> newSteinerPoints = steinerPoints;
+            selectedMethod->execute(newCdt, obtuseTriangle, newSteinerPoints);
+            // if selected method was circumenter and has same steiner points (not improved) execute oneCentroid
+            if (methodIndex == 3 && steinerPoints.size() == newSteinerPoints.size())
+            {
+                TriangulationMethod *centroidMethod = new oneCentroidMethod();
+                centroidMethod->execute(newCdt, obtuseTriangle, newSteinerPoints);
+                int obtuseCountOld = TriangulationUtils::countObtuseTriangles(cdt);
+                int obtuseCountNew = TriangulationUtils::countObtuseTriangles(newCdt);
+                double previousEnergy = calculateEnergy(cdt, x, y, steinerPoints);
+                evaluate_method(centroidMethod, x, y, obtuseCountOld, obtuseCountNew, newSteinerPoints, previousEnergy, newCdt);
+                selectedMethod->setEnergyDelta(centroidMethod->getEnergyDelta());
+                selectedMethod->setPheromonesDelta(centroidMethod->getPheromonesDelta());
+                selectedMethod->setAntColonyCdt(centroidMethod->getAntColonyCdt());
+                selectedMethod->setAntColonySteinerPoints(centroidMethod->getAntColonySteinerPoints());
+                delete centroidMethod;
+            } else {
+                int obtuseCountOld = TriangulationUtils::countObtuseTriangles(cdt);
+                int obtuseCountNew = TriangulationUtils::countObtuseTriangles(newCdt);
+                double previousEnergy = calculateEnergy(cdt, x, y, steinerPoints);
+                evaluate_method(selectedMethod, x, y, obtuseCountOld, obtuseCountNew, newSteinerPoints, previousEnergy, newCdt);
+            }
+        }
+
+        // Save best triangulation method
+        for (auto method : methods)
+        {
+            if (bestMethod == nullptr || method->getEnergyDelta() < bestMethod->getEnergyDelta())
+            {
+                bestMethod = method;
+            }
+        }
+
+        // Update pheromones
+        for (auto method : methods)
+        {
+            update_pheromones(method, 0.1);
+        }
+
+        cdt = bestMethod->getAntColonyCdt();
+        steinerPoints = bestMethod->getAntColonySteinerPoints();
+    }
+}
 
 
 void perform_triangulation(int methodType, const InputData& input_data, OutputData& output_data) {
@@ -240,14 +357,6 @@ void perform_triangulation(int methodType, const InputData& input_data, OutputDa
         vertex_handles.push_back(vh);
         point_indices[p] = static_cast<int>(i);
     }
-
-    // Insert region boundary constraints
-    // int rb_size = input_data.region_boundary.size();
-    //     for (int i = 0; i < rb_size; ++i) {
-    //      int idx1 = input_data.region_boundary[i];
-    //        int idx2 = input_data.region_boundary[(i + 1) % rb_size];
-    //          cdt.insert_constraint(vertex_handles[idx1], vertex_handles[idx2]);
-    //        }
 
     // Insert additional constraints
     for (const auto& constraint : input_data.additional_constraints) {
@@ -283,13 +392,12 @@ void perform_triangulation(int methodType, const InputData& input_data, OutputDa
     // default:
     //     break;
     // }
-    
-
-    // local search
 
     //local_search(cdt, steinerPoints);
 
-    simulated_annealing(cdt, steinerPoints);
+    // simulated_annealing(cdt, steinerPoints);
+
+    ant_colonies(cdt, steinerPoints);
 
 
     // after

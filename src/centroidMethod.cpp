@@ -75,27 +75,34 @@ bool CentroidMethod::isCentroidBeneficial(CDT cdt, Face_handle face) {
     return new_obtuse_count < initial_obtuse_count;
 }
 
+int CentroidMethod::countObtuseAdjacentTriangles(const CDT& cdt, Face_handle face) {
+    if (cdt.is_infinite(face)) return 0; // Infinite faces have no valid adjacent triangles
+
+    int obtuse_count = 0;
+
+    for (int i = 0; i < 3; ++i) {
+        Face_handle neighbor = face->neighbor(i);
+
+        // Check if the neighbor is not infinite
+        if (!cdt.is_infinite(neighbor)) {
+            Triangle triangle = cdt.triangle(neighbor);
+
+            // Check if the triangle is obtuse
+            if (TriangulationUtils::isObtuseTriangle(triangle)) {
+                ++obtuse_count;
+            }
+        }
+    }
+
+    return obtuse_count; // Return the number of obtuse adjacent triangles
+}
+
+double CentroidMethod::antColoniesHeuristic(CDT& cdt, Face_handle face, FT radiusToHeightRatio) {
+    auto numberOfObtuseTriangles = this->countObtuseAdjacentTriangles(cdt, face);
+    return numberOfObtuseTriangles >= 2 ? 1 : 0;
+}
+
+
 void CentroidMethod::execute(CDT& cdt,Face_handle face , std::vector<Point>& steiner_points) {
-    bool done = false;
-    int count = 0;
-
-    // while (!done) {
-    //     done = true;
-
-
-    //     for (auto face = cdt.finite_faces_begin(); face != cdt.finite_faces_end(); ++face) {
-
-    //         Triangle triangle = cdt.triangle(face);
-    //         auto is_obtuse = TriangulationUtils::isObtuseTriangle(triangle);
-    //         if (is_obtuse) {
-
-    //             auto is_centroid_beneficial = this->isCentroidBeneficial(cdt, face);
-    //             if (is_centroid_beneficial) {
-                     this->insertCentroid(cdt, face, steiner_points);
-    //                 done = false;  // Keep iterating since we inserted a new point
-    //                 break;  // Rebuild the triangulation and start checking again
-    //             }
-    //         }
-    //     }
-    // }
+    this->insertCentroid(cdt, face, steiner_points);
 }

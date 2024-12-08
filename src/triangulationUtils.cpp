@@ -89,3 +89,48 @@ FT TriangulationUtils::squaredDistance(const Point& p1, const Point& p2) {
 Point TriangulationUtils::quadrilateralCentroid(const Point& A, const Point& B, const Point& C, const Point& D) {
     return Point((A.x() + B.x() + C.x() + D.x()) / 4, (A.y() + B.y() + C.y() + D.y()) / 4);
 }
+
+FT TriangulationUtils::computeCircumradius(const Triangle& triangle) {
+    FT a = CGAL::approximate_sqrt(CGAL::squared_distance(triangle[0], triangle[1]));
+    FT b = CGAL::approximate_sqrt(CGAL::squared_distance(triangle[1], triangle[2]));
+    FT c = CGAL::approximate_sqrt(CGAL::squared_distance(triangle[2], triangle[0]));
+    
+    FT s = (a + b + c) / 2.0; // Semi-perimeter
+    FT area = CGAL::approximate_sqrt(s * (s - a) * (s - b) * (s - c)); // Heron's formula
+
+    return (a * b * c) / (4.0 * area);
+}
+
+FT TriangulationUtils::computeHeight(const Triangle& triangle) {
+    FT a = CGAL::approximate_sqrt(CGAL::squared_distance(triangle[0], triangle[1]));
+    FT b = CGAL::approximate_sqrt(CGAL::squared_distance(triangle[1], triangle[2]));
+    FT c = CGAL::approximate_sqrt(CGAL::squared_distance(triangle[2], triangle[0]));
+    
+    FT area = CGAL::area(triangle[0], triangle[1], triangle[2]);
+    FT longest_side = std::max({a, b, c});
+
+    return (2.0 * area) / longest_side;
+}
+
+Face_handle TriangulationUtils::getRandomObtuseTriangle(const CDT& cdt) {
+    // Collect all obtuse triangles
+    std::vector<Face_handle> obtuseTriangles;
+    for (auto face = cdt.finite_faces_begin(); face != cdt.finite_faces_end(); ++face) {
+        Triangle triangle = cdt.triangle(face);
+        if (TriangulationUtils::isObtuseTriangle(triangle)) {
+            obtuseTriangles.push_back(face);
+        }
+    }
+
+    // If no obtuse triangles are found, return an empty triangle (or handle as desired)
+    if (obtuseTriangles.empty()) {
+        throw std::runtime_error("No obtuse triangles found in the CDT");
+    }
+
+    // Choose a random obtuse triangle
+    static std::random_device rd;  // Seed
+    static std::mt19937 gen(rd()); // Random number generator
+    std::uniform_int_distribution<> dis(0, obtuseTriangles.size() - 1);
+
+    return obtuseTriangles[dis(gen)];
+}

@@ -54,23 +54,12 @@ bool ProjectionMethod::isProjectionBeneficial(CDT cdt, Face_handle face) {
 
 // Execute the projection-based refinement
 void ProjectionMethod::execute(CDT& cdt, Face_handle face , std::vector<Point>& steiner_points) {
-    bool done = false;
-    int counter = 0;
-    // while (!done) {
-    //     done = true; // Assume no more insertions
-    //     // std::cout << "counter = " << counter << "\n";
-    //     // if (counter++ == 4)
-    //     //     break;
-    //     for (auto face = cdt.finite_faces_begin(); face != cdt.finite_faces_end(); ++face) {
-    //         Triangle triangle = cdt.triangle(face);
-    //         if (TriangulationUtils::isObtuseTriangle(triangle)) {
-    //             // Check if the projection reduces obtuse triangles
-    //             if (isProjectionBeneficial(cdt, face)) {
-                     insertProjection(cdt, face, steiner_points);
-    //                 done = false; // Continue iterating after an insertion
-    //                 break; // Restart iteration due to triangulation update
-    //             }
-    //         }
-    //     }
-    // }
+    insertProjection(cdt, face, steiner_points);
+}
+
+double ProjectionMethod::antColoniesHeuristic(CDT& cdt, Face_handle face, FT radiusToHeightRatio) {
+    auto rho = CGAL::to_double(radiusToHeightRatio);
+    auto heuristic = (rho - 1) / rho;
+
+    return heuristic < 0 ? 0 : heuristic;
 }
