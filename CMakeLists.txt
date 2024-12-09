@@ -68,6 +68,7 @@ set(SRC_FILES
   src/centroidMethod.cpp
   src/oneCentroid.cpp
   src/projectionMethod.cpp
+  src/algorithms.cpp
 )
 
 # Creating entries for target: opt_triangulation

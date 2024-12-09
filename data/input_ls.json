@@ -13,5 +13,5 @@
     ],
     "method": "ls",
     "parameters": {"L": 5000 },
-    "delaunay": false
+    "delaunay": true
    } 

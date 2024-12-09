@@ -12,6 +12,6 @@
    [15,16], [18,19], [19,0]
     ],
     "method": "ant",
-    "parameters": {"alpha": 5.0, "beta": 0.2, "xi": 1.0, "psi": 2.0, "lambda": 0.1, "kappa": 20, "L": 50 },
-    "delaunay": false
+    "parameters": {"alpha": 5.0, "beta": 0.2, "xi": 1.0, "psi": 2.0, "lambda": 0.5, "kappa": 10, "L": 50 },
+    "delaunay": true
    } 
