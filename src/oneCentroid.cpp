@@ -3,7 +3,6 @@
 #include "triangulationUtils.hpp"
 
 oneCentroidMethod::oneCentroidMethod() {
-    std::cout << "oneCentroidMethod executed" << std::endl;
 }
 
 // Function to insert the centroid of an obtuse triangle into the triangulation

@@ -3,7 +3,6 @@
 #include "triangulationUtils.hpp"
 
 MidpointMethod::MidpointMethod() {
-    std::cout << "MidpointMethod executed" << std::endl;
 }
 
 void MidpointMethod::insertMidpoint(CDT& cdt, Face_handle face, std::vector<Point>& steiner_points) {

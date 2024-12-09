@@ -1,5 +1,6 @@
 #include "triangulation.hpp"
 #include "triangulationUtils.hpp"
+#include <CGAL/draw_triangulation_2.h>
 #include <CGAL/convex_hull_2.h>
 #include <CGAL/Polygon_2.h>
 

@@ -3,7 +3,6 @@
 #include "centroidMethod.hpp"
 
 CentroidMethod::CentroidMethod() {
-    std::cout << "CentroidMethod executed" << std::endl;
 }
 
 void CentroidMethod::insertCentroid(CDT& cdt, Face_handle face, std::vector<Point>& steiner_points) {

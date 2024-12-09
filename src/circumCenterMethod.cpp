@@ -3,7 +3,6 @@
 #include "triangulationUtils.hpp"
 
 CircumCenterMethod::CircumCenterMethod() {
-    std::cout << "CircumCenterMethod executed" << std::endl;
 }
 
 // Function to insert the circumcenter of an obtuse triangle into the triangulation

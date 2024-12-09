@@ -84,13 +84,11 @@ int find_best_method(CDT cdt, Face_handle face){
         best_method = 5;
     }
 
-    std::cout << "BEST METHOD = " << best_method << "\n";
-
     return best_method;
 
 }
 
-void local_search(CDT& cdt, std::vector<Point>& steinerPoints){
+void local_search(CDT& cdt, std::vector<Point>& steinerPoints, int L){
 
     TriangulationMethod* method = nullptr;
     bool done = false;
@@ -100,7 +98,7 @@ void local_search(CDT& cdt, std::vector<Point>& steinerPoints){
 
     while(!done){
         done = true; 
-        if ( stopping_criterion++ == 5000 ) break;
+        if ( stopping_criterion++ == L ) break;
 
         for (auto face = cdt.finite_faces_begin(); face != cdt.finite_faces_end(); ++face) {
             Triangle triangle = cdt.triangle(face);
@@ -159,20 +157,24 @@ double randomProbability() {
     return static_cast<double>(std::rand()) / RAND_MAX;
 }
 
-void simulated_annealing(CDT& cdt, std::vector<Point>& steinerPoints){
+void simulated_annealing(CDT& cdt, std::vector<Point>& steinerPoints, double a, double b, int L){
 
     TriangulationMethod* method = nullptr;
     std::vector<Point> dummy_points;
-    double a,b;
-    a = 3.0;
-    b = 0.8;
-    int L = 500;
     double energy = calculateEnergy(cdt, a, b, steinerPoints); // Initial energy
     double T = 1.0;
     int method_option;
     int counter = 0;
     std::srand(static_cast<unsigned>(std::time(nullptr)));
           
+    std::vector<TriangulationMethod*> methods = std::vector<TriangulationMethod*>(5);
+    methods[0] = new ProjectionMethod();
+    methods[1] = new MidpointMethod();
+    methods[2] = new CentroidMethod();
+    methods[3] = new CircumCenterMethod();
+    methods[4] = new oneCentroidMethod();
+
+
     while ( T > 0 ){
         counter++;
 
@@ -184,11 +186,11 @@ void simulated_annealing(CDT& cdt, std::vector<Point>& steinerPoints){
                 //std::cout << "option = " << method_option << "\n";
                 switch (method_option)
                 {
-                    case 0: method = new ProjectionMethod(); break;
-                    case 1: method = new MidpointMethod(); break;
-                    case 2: method = new CentroidMethod(); break;
-                    case 3: method = new oneCentroidMethod(); break;
-                    case 4: method = new CircumCenterMethod(); break;
+                    case 0: method = methods[0]; break;
+                    case 1: method = methods[1]; break;
+                    case 2: method = methods[2]; break;
+                    case 3: method = methods[3]; break;
+                    case 4: method = methods[4]; break;
                 }
 
                 CDT test_cdt = cdt;
@@ -199,9 +201,9 @@ void simulated_annealing(CDT& cdt, std::vector<Point>& steinerPoints){
                 double DE = newEnergy - energy;
 
                 if ( DE < 0 || std::exp( -DE / T ) >= randomProbability() ){
-                    method->execute(cdt, face, steinerPoints); // update cdt and steiner points
+                    cdt = test_cdt;
+                    steinerPoints = dummy_points;
                     energy = newEnergy;
-                    delete method;
                     break;
 
                 }
@@ -209,9 +211,12 @@ void simulated_annealing(CDT& cdt, std::vector<Point>& steinerPoints){
         }
 
         T -= 1.0 / L;
-        //T
-    std::cout << "fores = " << counter << "\n";
     }
+
+    for (TriangulationMethod* method : methods) 
+        delete method; // Free the memory
+
+
 
 }
 
@@ -219,7 +224,7 @@ void simulated_annealing(CDT& cdt, std::vector<Point>& steinerPoints){
 // Ant Colonies
 void evaluate_method(TriangulationMethod* method, double a, double b, int obtuseCountOld, int obtuseCountNew, std::vector<Point>& steinerPoints, double previousEnergy, CDT& newCdt) {
     double energyDelta = calculateEnergy(newCdt, a, b, steinerPoints) - previousEnergy;
-    if (energyDelta > method->getEnergyDelta())
+    if (energyDelta < 0)
     {
         int steinerCount = steinerPoints.size();
         double pheromonesDelta = obtuseCountOld == obtuseCountNew ? 0 : 1 / (1 + a * obtuseCountNew + b * steinerCount);
@@ -237,36 +242,42 @@ void update_pheromones(TriangulationMethod* method, double pheromonesEvaporation
     method->setPheromones(pheromones);
 }
 
-void ant_colonies(CDT& cdt, std::vector<Point>& steinerPoints) {
+void ant_colonies(CDT& cdt, std::vector<Point>& steinerPoints, double a, double b, double x , double y, double lambda, double kappa, int L) {
     int number_of_points = cdt.number_of_vertices();
-    int x = 1;
-    int y = 2;
     TriangulationMethod* bestMethod = nullptr;
-    int L = 10; // total cycles
     std::vector<TriangulationMethod*> methods = std::vector<TriangulationMethod*>(4);
     methods[0] = new ProjectionMethod();
     methods[1] = new MidpointMethod();
     methods[2] = new CentroidMethod();
-    methods[3] = new CircumCenterMethod();
+    methods[3] = new CircumCenterMethod();  
     std::vector<double> methodProbabilities = std::vector<double>(4);
+    TriangulationMethod* centroidMethod =  new oneCentroidMethod();
+    centroidMethod->setAntColonyCdt(cdt);
+    centroidMethod->setPheromones(0.25); // 1 / number of methods
+    centroidMethod->setEnergyDelta(0);
 
     // for each method, initialize pheromones
     for (auto method : methods) {
         method->setPheromones(0.25); // 1 / number of methods
+        method->setAntColonyCdt(cdt);
+        method->setEnergyDelta(0);
     }
     
-    int K = number_of_points / 4;
+    //int K = number_of_points / 4;
+    int K = kappa;
 
     for (int c = 0; c < L; c++) // for each cycle
     {
         for (int ant = 0; ant < K; ant++)
         {
+
             auto obtuseTriangle = TriangulationUtils::getRandomObtuseTriangle(cdt); // select random obtuse triangle
             // for each method calculate the probability based on pheromones and heuristic
             for (int i = 0; i < 4; i++)
             {
                 TriangulationMethod* method = methods[i];
-                methodProbabilities[i] = x * method->getPheromones() + y * method->antColoniesHeuristic(cdt, obtuseTriangle, 1.0);
+                //methodProbabilities[i] = x * method->getPheromones() + y * method->antColoniesHeuristic(cdt, obtuseTriangle, 1.0);
+                methodProbabilities[i] = std::pow(method->getPheromones(),x) + std::pow(method->antColoniesHeuristic(cdt, obtuseTriangle, 1.0),y);
             }
             double totalProbability = 0;
             for (auto probability : methodProbabilities)
@@ -301,47 +312,47 @@ void ant_colonies(CDT& cdt, std::vector<Point>& steinerPoints) {
             // if selected method was circumenter and has same steiner points (not improved) execute oneCentroid
             if (methodIndex == 3 && steinerPoints.size() == newSteinerPoints.size())
             {
-                TriangulationMethod *centroidMethod = new oneCentroidMethod();
+                centroidMethod->setAntColonyCdt(cdt);
                 centroidMethod->execute(newCdt, obtuseTriangle, newSteinerPoints);
                 int obtuseCountOld = TriangulationUtils::countObtuseTriangles(cdt);
                 int obtuseCountNew = TriangulationUtils::countObtuseTriangles(newCdt);
-                double previousEnergy = calculateEnergy(cdt, x, y, steinerPoints);
-                evaluate_method(centroidMethod, x, y, obtuseCountOld, obtuseCountNew, newSteinerPoints, previousEnergy, newCdt);
+                double previousEnergy = calculateEnergy(cdt, a, b, steinerPoints);
+                evaluate_method(centroidMethod, a, b, obtuseCountOld, obtuseCountNew, newSteinerPoints, previousEnergy, newCdt);
                 selectedMethod->setEnergyDelta(centroidMethod->getEnergyDelta());
                 selectedMethod->setPheromonesDelta(centroidMethod->getPheromonesDelta());
                 selectedMethod->setAntColonyCdt(centroidMethod->getAntColonyCdt());
                 selectedMethod->setAntColonySteinerPoints(centroidMethod->getAntColonySteinerPoints());
-                delete centroidMethod;
             } else {
                 int obtuseCountOld = TriangulationUtils::countObtuseTriangles(cdt);
                 int obtuseCountNew = TriangulationUtils::countObtuseTriangles(newCdt);
-                double previousEnergy = calculateEnergy(cdt, x, y, steinerPoints);
-                evaluate_method(selectedMethod, x, y, obtuseCountOld, obtuseCountNew, newSteinerPoints, previousEnergy, newCdt);
+                double previousEnergy = calculateEnergy(cdt, a, b, steinerPoints);
+                evaluate_method(selectedMethod, a, b, obtuseCountOld, obtuseCountNew, newSteinerPoints, previousEnergy, newCdt);
             }
         }
-
         // Save best triangulation method
         for (auto method : methods)
         {
             if (bestMethod == nullptr || method->getEnergyDelta() < bestMethod->getEnergyDelta())
             {
+
                 bestMethod = method;
             }
         }
-
         // Update pheromones
         for (auto method : methods)
         {
-            update_pheromones(method, 0.1);
+            update_pheromones(method, lambda);
         }
 
         cdt = bestMethod->getAntColonyCdt();
         steinerPoints = bestMethod->getAntColonySteinerPoints();
+        //CGAL::draw(cdt);
+
     }
 }
 
 
-void perform_triangulation(int methodType, const InputData& input_data, OutputData& output_data) {
+void perform_triangulation(const InputData& input_data, OutputData& output_data) {
     CDT cdt;
 
     std::vector<Point> points;
@@ -372,34 +383,18 @@ void perform_triangulation(int methodType, const InputData& input_data, OutputDa
 
     TriangulationMethod* method = nullptr;
 
-    // switch (methodType)
-    // {
-    // case 1:
-    //     method = new CircumCenterMethod();
-    //     break;
-    // case 2:
-    //     method = new MidpointMethod();
-    //     break;
-    // case 3:
-    //     method = new CentroidMethod();
-    //     break;
-    // case 4:
-    //     method = new oneCentroidMethod();
-    //     break;
-    // case 5:
-    //     method = new ProjectionMethod();
-    //     break;
-    // default:
-    //     break;
-    // }
+    if ( input_data.method == "ls" ){
+        local_search(cdt, steinerPoints, input_data.L);
 
-    //local_search(cdt, steinerPoints);
+    }else if ( input_data.method == "sa" ){
+        simulated_annealing(cdt, steinerPoints, input_data.alpha, input_data.beta, input_data.L);
 
-    // simulated_annealing(cdt, steinerPoints);
+    } else if ( input_data.method == "ant" ){
+        ant_colonies(cdt, steinerPoints, input_data.alpha, input_data.beta, input_data.xi, input_data.psi, input_data.lambda, input_data.kappa,input_data.L);
 
-    ant_colonies(cdt, steinerPoints);
+    }
 
-
+  
     // after
     CGAL::draw(cdt);
     obtuse_triangle_count = TriangulationUtils::countObtuseTriangles(cdt);
@@ -408,6 +403,9 @@ void perform_triangulation(int methodType, const InputData& input_data, OutputDa
     // Prepare output data
     output_data.content_type = "CG_SHOP_2025_Solution";
     output_data.instance_uid = input_data.instance_uid;
+    output_data.obtuse_triangle_count = obtuse_triangle_count;
+    output_data.parameters = input_data.parameters;
+    output_data.method = input_data.method;
 
     // Steiner points x and y coordinates
     for (const auto& p : steinerPoints) {
@@ -421,10 +419,7 @@ void perform_triangulation(int methodType, const InputData& input_data, OutputDa
         auto exact_y = CGAL::exact(p.y());
         ss_y << exact_y.get_num() << "/" << exact_y.get_den();
         output_data.steiner_points_y.push_back(ss_y.str());
-        // ss_x << CGAL::to_double(p.x());
-        // ss_y << CGAL::to_double(p.y());
-        // output_data.steiner_points_x.push_back(ss_x.str());
-        // output_data.steiner_points_y.push_back(ss_y.str());
+   
     }
 
     // Edges
@@ -446,14 +441,13 @@ void perform_triangulation(int methodType, const InputData& input_data, OutputDa
 }
 
 int main(int argc, const char* argv[]) {
-    if (argc != 4) {
+    if (argc != 5) {
         std::cout << "Usage: " << argv[0] << " <inputFile> <outputFile> <method>" << std::endl;
         return 1;
     }
     // Input and output file paths
-    std::string input_filename = argv[1];
-    std::string output_filename = argv[2];
-    int method = std::stoi(argv[3]);
+    std::string input_filename = argv[2];
+    std::string output_filename = argv[4];
 
     // Parse input JSON
     InputData input_data = JsonUtils::parseInputJson(input_filename);
@@ -462,7 +456,7 @@ int main(int argc, const char* argv[]) {
     OutputData output_data;
 
     // Perform triangulation
-    perform_triangulation(method, input_data, output_data);
+    perform_triangulation(input_data, output_data);
 
     // Write output JSON
     JsonUtils::writeOutputJson(output_filename, output_data);

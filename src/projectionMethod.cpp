@@ -3,7 +3,6 @@
 #include "triangulationUtils.hpp"
 
 ProjectionMethod::ProjectionMethod() {
-    std::cout << "ProjectionMethod executed" << std::endl;
 }
 
 // Function to insert the projection of an obtuse triangle vertex onto its longest edge

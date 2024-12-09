@@ -3,7 +3,7 @@
 
 cmake_minimum_required(VERSION 3.1...3.23)
 
-project(triangulation)
+project(opt_triangulation)
 
 # Set C++ standard
 set(CMAKE_CXX_STANDARD 17)
@@ -70,12 +70,12 @@ set(SRC_FILES
   src/projectionMethod.cpp
 )
 
-# Creating entries for target: triangulation
+# Creating entries for target: opt_triangulation
 # ##########################################
-add_executable(triangulation ${SRC_FILES})
+add_executable(opt_triangulation ${SRC_FILES})
 
 # Link the executable to CGAL and third-party libraries
-target_link_libraries(triangulation PRIVATE
+target_link_libraries(opt_triangulation PRIVATE
   CGAL::CGAL
   ${Boost_LIBRARIES}
   ${GMP_LIBRARIES}
@@ -84,4 +84,4 @@ target_link_libraries(triangulation PRIVATE
 
 #qt testing
 add_definitions(-DCGAL_USE_BASIC_VIEWER)
-target_link_libraries(triangulation PUBLIC CGAL::CGAL_Qt5)
+target_link_libraries(opt_triangulation PUBLIC CGAL::CGAL_Qt5)

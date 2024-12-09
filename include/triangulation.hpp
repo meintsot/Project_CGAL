@@ -33,12 +33,27 @@ struct InputData {
     std::vector<int> region_boundary;
     int num_constraints;
     std::vector<std::vector<int>> additional_constraints;
+    std::string method;
+    nlohmann::json parameters;
+    double alpha;
+    double beta;
+    double xi;
+    double psi;
+    double lambda;
+    double kappa;
+    int L;
+    bool delaunay;
 };
 
 struct OutputData {
     std::string content_type;
     std::string instance_uid;
+    int obtuse_triangle_count;
     std::vector<std::string> steiner_points_x;
     std::vector<std::string> steiner_points_y;
     std::vector<std::vector<int>> edges;
+    std::string method;
+    nlohmann::json parameters;
+
+
 };
