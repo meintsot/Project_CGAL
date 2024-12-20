@@ -4,7 +4,7 @@
 #include <CGAL/convex_hull_2.h>
 #include <CGAL/Polygon_2.h>
 
-
+#define PI 3.14159265358979323846
 
 bool TriangulationUtils::isObtuseTriangle(const Point& a, const Point& b, const Point& c) {
     // Compute the squared lengths of the sides
@@ -134,4 +134,36 @@ Face_handle TriangulationUtils::getRandomObtuseTriangle(const CDT& cdt) {
     std::uniform_int_distribution<> dis(0, obtuseTriangles.size() - 1);
 
     return obtuseTriangles[dis(gen)];
+}
+
+bool TriangulationUtils::isConvexBoundary(const std::vector<Point>& boundary) {
+    Polygon_2 polygon(boundary.begin(), boundary.end());
+    return polygon.is_simple() && polygon.is_convex();
+}
+
+bool TriangulationUtils::areConstraintsClosed(const std::vector<std::pair<Point, Point>>& constraints) {
+    std::unordered_map<Point, int, PointHash> vertex_degree;
+
+    for (const auto& constraint : constraints) {
+        vertex_degree[constraint.first]++;
+        vertex_degree[constraint.second]++;
+    }
+
+    for (const auto& [vertex, degree] : vertex_degree) {
+        if (degree != 2) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool TriangulationUtils::isAxisParallel(const std::vector<Point>& boundary) {
+    for (size_t i = 0; i < boundary.size(); ++i) {
+        const auto& p1 = boundary[i];
+        const auto& p2 = boundary[(i + 1) % boundary.size()];
+        if (p1.x() != p2.x() && p1.y() != p2.y()) {
+            return false;
+        }
+    }
+    return true;
 }

@@ -17,6 +17,39 @@
 #include "projectionMethod.hpp"
 #include "algorithms.hpp"
 
+std::string classifyInput(const std::vector<Point>& boundary, const std::vector<std::pair<Point, Point>>& constraints) {
+    bool isConvex = TriangulationUtils::isConvexBoundary(boundary);
+    bool isAxisParallel = TriangulationUtils::isAxisParallel(boundary);
+    bool hasClosedConstraints = TriangulationUtils::areConstraintsClosed(constraints);
+
+    if (isConvex) {
+        if (constraints.empty()) {
+            return "ls"; // Convex boundary, no constraints
+        } else if (!hasClosedConstraints) {
+            return "ls"; // Convex boundary, open constraints
+        } else {
+            return "sa"; // Convex boundary, closed constraints
+        }
+    } else {
+        if (isAxisParallel) {
+            return "sa"; // Non-convex boundary, axis-parallel segments
+        } else {
+            return "ant"; // Irregular non-convex boundary
+        }
+    }
+}
+
+std::vector<Point> constructBoundary(const InputData& input_data) {
+    std::vector<Point> boundary;
+
+    for (int index : input_data.region_boundary) {
+        Point p(input_data.points_x[index], input_data.points_y[index]);
+        boundary.push_back(p);
+    }
+
+    return boundary;
+}
+
 
 void perform_triangulation(const InputData& input_data, OutputData& output_data) {
     CDT cdt;
@@ -49,17 +82,27 @@ void perform_triangulation(const InputData& input_data, OutputData& output_data)
 
     TriangulationMethod* method = nullptr;
 
-    if ( input_data.method == "ls" ){
+    auto region_boundary = constructBoundary(input_data);
+    std::vector<std::pair<Point, Point>> constraints;
+    for (const auto& constraint : input_data.additional_constraints) {
+        Point p1(input_data.points_x[constraint[0]], input_data.points_y[constraint[0]]);
+        Point p2(input_data.points_x[constraint[1]], input_data.points_y[constraint[1]]);
+        constraints.emplace_back(p1, p2);
+    }
+
+    auto algorithm = classifyInput(region_boundary, constraints);
+
+    if ( algorithm == "ls" ){
         if ( input_data.delaunay == false )
             local_search(cdt, steinerPoints, input_data.L);
         local_search(cdt, steinerPoints, input_data.L);
 
-    }else if ( input_data.method == "sa" ){
+    }else if ( algorithm == "sa" ){
         if ( input_data.delaunay == false )
             local_search(cdt, steinerPoints, input_data.L);
         simulated_annealing(cdt, steinerPoints, input_data.alpha, input_data.beta, input_data.L);
 
-    } else if ( input_data.method == "ant" ){
+    } else if ( algorithm == "ant" ){
         if ( input_data.delaunay == false )
             local_search(cdt, steinerPoints, input_data.L);
         ant_colonies(cdt, steinerPoints, input_data.alpha, input_data.beta, input_data.xi, input_data.psi, input_data.lambda, input_data.kappa,input_data.L);

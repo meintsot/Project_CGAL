@@ -27,4 +27,10 @@ public:
     static FT computeRadiusToHeightRatio(const Triangle& triangle);
 
     static Face_handle getRandomObtuseTriangle(const CDT& cdt);
+
+    static bool isConvexBoundary(const std::vector<Point>& boundary);
+
+    static bool areConstraintsClosed(const std::vector<std::pair<Point, Point>>& constraints);
+    
+    static bool isAxisParallel(const std::vector<Point>& boundary);
 };
