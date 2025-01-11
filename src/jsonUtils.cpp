@@ -40,21 +40,21 @@ InputData JsonUtils::parseInputJson(const std::string& filename) {
 
     input_data.parameters = input_json.value("parameters", json::object()); // Default: empty object
 
-    if (input_data.method == "ls") {
-        input_data.L = input_data.parameters.value("L", 0);  // Default: 0
-    } else if (input_data.method == "sa") {
-        input_data.alpha = input_data.parameters.value("alpha", 0.0); // Default: 0.0
-        input_data.beta = input_data.parameters.value("beta", 0.0);
-        input_data.L = input_data.parameters.value("L", 0);
-    } else if (input_data.method == "ant") {
-        input_data.alpha = input_data.parameters.value("alpha", 0.0);
-        input_data.beta = input_data.parameters.value("beta", 0.0);
-        input_data.xi = input_data.parameters.value("xi", 0.0);
-        input_data.psi = input_data.parameters.value("psi", 0.0);
-        input_data.lambda = input_data.parameters.value("lambda", 0.0);
-        input_data.kappa = input_data.parameters.value("kappa", 0.0);
-        input_data.L = input_data.parameters.value("L", 0);
-    }
+    //if (input_data.method == "ls") {
+        input_data.L = input_data.parameters.value("L", 500);  // Default: 500
+    //} else if (input_data.method == "sa") {
+        //input_data.alpha = input_data.parameters.value("alpha", 0.0); // Default: 0.0
+        //input_data.beta = input_data.parameters.value("beta", 0.0);
+        //input_data.L = input_data.parameters.value("L", 0);
+    //} else if (input_data.method == "ant") {
+        input_data.alpha = input_data.parameters.value("alpha", 3.5);
+        input_data.beta = input_data.parameters.value("beta", 1.0);
+        input_data.xi = input_data.parameters.value("xi", 1.0);
+        input_data.psi = input_data.parameters.value("psi", 2.0);
+        input_data.lambda = input_data.parameters.value("lambda", 0.5);
+        input_data.kappa = input_data.parameters.value("kappa", 10);
+        //input_data.L = input_data.parameters.value("L", 0);
+    //}
 
     
 

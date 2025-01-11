@@ -100,6 +100,7 @@ void local_search(CDT& cdt, std::vector<Point>& steinerPoints, int L) {
     while (!done) {
         done = true; 
         if (stopping_criterion++ == L) break;
+        std::cout << stopping_criterion << std::endl;
 
         for (auto face = cdt.finite_faces_begin(); face != cdt.finite_faces_end(); ++face) {
             Triangle triangle = cdt.triangle(face);
@@ -178,6 +179,7 @@ void simulated_annealing(CDT& cdt, std::vector<Point>& steinerPoints, double a, 
         counter++;
         bool improved = false;
 
+
         for (auto face = cdt.finite_faces_begin(); face != cdt.finite_faces_end(); ++face) {
             Triangle triangle = cdt.triangle(face);
             auto is_obtuse = TriangulationUtils::isObtuseTriangle(triangle);
@@ -222,6 +224,9 @@ void simulated_annealing(CDT& cdt, std::vector<Point>& steinerPoints, double a, 
         //     cdt.insert(randomPoint);
         //     randomized = true;
         // }
+
+        std::cout << counter << std::endl;
+
 
         T -= 1.0 / L;
     }
@@ -274,6 +279,10 @@ void ant_colonies(CDT& cdt, std::vector<Point>& steinerPoints, double a, double 
         method->setAntColonyCdt(cdt);
         method->setEnergyDelta(0);
     }
+
+    int counter = 0;
+    double p_sum = 0.0; // Sum for p(n)
+    int obtuse_previous = TriangulationUtils::countObtuseTriangles(cdt);
     
     //int K = number_of_points / 4;
     int K = kappa;
@@ -336,6 +345,18 @@ void ant_colonies(CDT& cdt, std::vector<Point>& steinerPoints, double a, double 
                 double previousEnergy = calculateEnergy(cdt, a, b, steinerPoints);
                 evaluate_method(selectedMethod, a, b, obtuseCountOld, obtuseCountNew, newSteinerPoints, previousEnergy, newCdt);
             }
+
+            counter++;
+            int obtuse_current = TriangulationUtils::countObtuseTriangles(cdt);
+                if (obtuse_previous > 0 && obtuse_current > 0) {
+                    double p_n = std::log(static_cast<double>(obtuse_current) / obtuse_previous) /
+                                std::log(static_cast<double>(counter + 1) / counter);
+                    p_sum += p_n;
+                 }
+            obtuse_previous = obtuse_current;
+
+
+
         }
         // Save best triangulation method
         for (auto method : methods)
@@ -354,4 +375,8 @@ void ant_colonies(CDT& cdt, std::vector<Point>& steinerPoints, double a, double 
         steinerPoints = bestMethod->getAntColonySteinerPoints();
         //CGAL::draw(cdt);
     }
+
+    double average_p = p_sum / (counter - 1);
+    std::cout << "Simulated Annealing Average Convergence Rate (p): " << average_p << std::endl;
+
 }

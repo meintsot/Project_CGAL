@@ -70,8 +70,8 @@ void perform_triangulation(const InputData& input_data, OutputData& output_data)
         constraints.emplace_back(p1, p2);
     }
 
-    //auto algorithm = TriangulationUtils::classifyInput(region_boundary, constraints);
-    auto algorithm = input_data.method;
+    auto algorithm = TriangulationUtils::classifyInput(region_boundary, constraints);
+    algorithm = input_data.method;
 
     if ( algorithm == "ls" ){
         if ( input_data.delaunay == false )
@@ -90,6 +90,9 @@ void perform_triangulation(const InputData& input_data, OutputData& output_data)
 
     } else if ( algorithm == "auto" ){
         std::cout << " autoooooooooooooo " << std::endl;
+        std::cout << input_data.alpha << std::endl;
+        //simulated_annealing(cdt, steinerPoints, input_data.alpha, input_data.beta, input_data.L);
+        local_search(cdt, steinerPoints, 30);
     }
 
     // this part is for the output edges
