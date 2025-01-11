@@ -167,3 +167,30 @@ bool TriangulationUtils::isAxisParallel(const std::vector<Point>& boundary) {
     }
     return true;
 }
+
+std::string TriangulationUtils::classifyInput(const std::vector<Point>& boundary, const std::vector<std::pair<Point, Point>>& constraints) {
+    bool isConvex = TriangulationUtils::isConvexBoundary(boundary);
+    bool isAxisParallel = TriangulationUtils::isAxisParallel(boundary);
+    bool hasClosedConstraints = TriangulationUtils::areConstraintsClosed(constraints);
+
+    if (isConvex) {
+        if (constraints.empty()) {
+            std::cout << "          Convex boundary, no constraints " << std::endl;
+            return "ls"; // Convex boundary, no constraints
+        } else if (!hasClosedConstraints) {
+            std::cout << "          Convex boundary, open constraints " << std::endl;
+            return "ls"; // Convex boundary, open constraints
+        } else {
+            std::cout << "          Convex boundary, closed constraints " << std::endl;
+            return "sa"; // Convex boundary, closed constraints
+        }
+    } else {
+        if (isAxisParallel) {
+            std::cout << "          Non-convex boundary, axis-parallel segments " << std::endl;
+            return "sa"; // Non-convex boundary, axis-parallel segments
+        } else {
+            std::cout << "          Irregular non-convex boundary " << std::endl;
+            return "ant"; // Irregular non-convex boundary
+        }
+    }
+}

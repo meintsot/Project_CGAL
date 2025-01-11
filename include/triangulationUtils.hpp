@@ -33,4 +33,7 @@ public:
     static bool areConstraintsClosed(const std::vector<std::pair<Point, Point>>& constraints);
     
     static bool isAxisParallel(const std::vector<Point>& boundary);
+
+    static std::string classifyInput(const std::vector<Point>& boundary, const std::vector<std::pair<Point, Point>>& constraints);
+
 };

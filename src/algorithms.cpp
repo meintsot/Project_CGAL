@@ -124,13 +124,13 @@ void local_search(CDT& cdt, std::vector<Point>& steinerPoints, int L) {
             }
         }
 
-        if (done) { // If no improvement was possible, apply randomization
-            Point randomPoint = generateRandomPoint(cdt);
-            steinerPoints.push_back(randomPoint);
-            cdt.insert(randomPoint);
-            randomized = true;
-            done = false; // Rebuild triangulation and continue
-        }
+        // if (done) { // If no improvement was possible, apply randomization
+        //     Point randomPoint = generateRandomPoint(cdt);
+        //     steinerPoints.push_back(randomPoint);
+        //     cdt.insert(randomPoint);
+        //     randomized = true;
+        //     done = false; // Rebuild triangulation and continue
+        // }
 
         int obtuse_current = TriangulationUtils::countObtuseTriangles(cdt);
         if (obtuse_previous > 0 && obtuse_current > 0) {
@@ -143,9 +143,9 @@ void local_search(CDT& cdt, std::vector<Point>& steinerPoints, int L) {
 
     double average_p = p_sum / (stopping_criterion - 1);
     std::cout << "Local Search Average Convergence Rate (p): " << average_p << std::endl;
-    if (randomized) {
-        std::cout << "Randomization was applied in Local Search." << std::endl;
-    }
+    // if (randomized) {
+    //     std::cout << "Randomization was applied in Local Search." << std::endl;
+    // }
 }
 
 
@@ -216,21 +216,21 @@ void simulated_annealing(CDT& cdt, std::vector<Point>& steinerPoints, double a, 
             }
         }
 
-        if (!improved) { // Apply randomization if no improvement
-            Point randomPoint = generateRandomPoint(cdt);
-            steinerPoints.push_back(randomPoint);
-            cdt.insert(randomPoint);
-            randomized = true;
-        }
+        // if (!improved) { // Apply randomization if no improvement
+        //     Point randomPoint = generateRandomPoint(cdt);
+        //     steinerPoints.push_back(randomPoint);
+        //     cdt.insert(randomPoint);
+        //     randomized = true;
+        // }
 
         T -= 1.0 / L;
     }
 
     double average_p = p_sum / (counter - 1);
     std::cout << "Simulated Annealing Average Convergence Rate (p): " << average_p << std::endl;
-    if (randomized) {
-        std::cout << "Randomization was applied in Simulated Annealing." << std::endl;
-    }
+    // if (randomized) {
+    //     std::cout << "Randomization was applied in Simulated Annealing." << std::endl;
+    // }
 }
 
 
@@ -255,48 +255,103 @@ void update_pheromones(TriangulationMethod* method, double pheromonesEvaporation
     method->setPheromones(pheromones);
 }
 
-void ant_colonies(CDT& cdt, std::vector<Point>& steinerPoints, double a, double b, double x, double y, double lambda, double kappa, int L) {
+void ant_colonies(CDT& cdt, std::vector<Point>& steinerPoints, double a, double b, double x , double y, double lambda, double kappa, int L) {
+    int number_of_points = cdt.number_of_vertices();
+    TriangulationMethod* bestMethod = nullptr;
+    std::vector<TriangulationMethod*> methods = std::vector<TriangulationMethod*>(4);
+    methods[0] = new ProjectionMethod();
+    methods[1] = new MidpointMethod();
+    methods[2] = new CentroidMethod();
+    methods[3] = new CircumCenterMethod();  
+    std::vector<double> methodProbabilities = std::vector<double>(4);
+    TriangulationMethod* centroidMethod =  new oneCentroidMethod();
+    centroidMethod->setAntColonyCdt(cdt);
+    centroidMethod->setPheromones(0.25); // 1 / number of methods
+    centroidMethod->setEnergyDelta(0);
+    // for each method, initialize pheromones
+    for (auto method : methods) {
+        method->setPheromones(0.25); // 1 / number of methods
+        method->setAntColonyCdt(cdt);
+        method->setEnergyDelta(0);
+    }
+    
+    //int K = number_of_points / 4;
     int K = kappa;
-    bool randomized = false;
-    double p_sum = 0.0; // Sum for p(n)
-    int obtuse_previous = TriangulationUtils::countObtuseTriangles(cdt);
-
-    for (int c = 0; c < L; c++) { // For each cycle
-        bool improved = false;
-
-        for (int ant = 0; ant < K; ant++) {
-            auto obtuseTriangle = TriangulationUtils::getRandomObtuseTriangle(cdt);
-            if (!obtuseTriangle) continue;
-
-            TriangulationMethod* selectedMethod = ...; // Select method based on probabilities
+    for (int c = 0; c < L; c++) // for each cycle
+    {
+        for (int ant = 0; ant < K; ant++)
+        {
+            auto obtuseTriangle = TriangulationUtils::getRandomObtuseTriangle(cdt); // select random obtuse triangle
+            // for each method calculate the probability based on pheromones and heuristic
+            for (int i = 0; i < 4; i++)
+            {
+                TriangulationMethod* method = methods[i];
+                //methodProbabilities[i] = x * method->getPheromones() + y * method->antColoniesHeuristic(cdt, obtuseTriangle, 1.0);
+                methodProbabilities[i] = std::pow(method->getPheromones(),x) + std::pow(method->antColoniesHeuristic(cdt, obtuseTriangle, 1.0),y);
+            }
+            double totalProbability = 0;
+            for (auto probability : methodProbabilities)
+            {
+                totalProbability += probability;
+            }
+            // Calculate the probability of each method
+            for (int i = 0; i < 4; i++)
+            {
+                methodProbabilities[i] /= totalProbability;
+            }
+            // Select a method based on the probabilities
+            double random = static_cast<double>(std::rand()) / RAND_MAX;
+            double cumulativeProbability = 0;
+            TriangulationMethod* selectedMethod = nullptr;
+            int methodIndex;
+            for (methodIndex = 0; methodIndex < 4; methodIndex++)
+            {
+                cumulativeProbability += methodProbabilities[methodIndex];
+                if (random <= cumulativeProbability)
+                {
+                    selectedMethod = methods[methodIndex];
+                    break;
+                }
+            }
+            // Execute the selected method
             CDT newCdt = cdt;
             std::vector<Point> newSteinerPoints = steinerPoints;
             selectedMethod->execute(newCdt, obtuseTriangle, newSteinerPoints);
-
-            int obtuse_current = TriangulationUtils::countObtuseTriangles(newCdt);
-            if (obtuse_current < obtuse_previous) {
-                cdt = newCdt;
-                steinerPoints = newSteinerPoints;
-                obtuse_previous = obtuse_current;
-                improved = true;
-
-                double p_n = ...; // Calculate p(n)
-                p_sum += p_n;
-                break;
+            // if selected method was circumenter and has same steiner points (not improved) execute oneCentroid
+            if (methodIndex == 3 && steinerPoints.size() == newSteinerPoints.size())
+            {
+                centroidMethod->setAntColonyCdt(cdt);
+                centroidMethod->execute(newCdt, obtuseTriangle, newSteinerPoints);
+                int obtuseCountOld = TriangulationUtils::countObtuseTriangles(cdt);
+                int obtuseCountNew = TriangulationUtils::countObtuseTriangles(newCdt);
+                double previousEnergy = calculateEnergy(cdt, a, b, steinerPoints);
+                evaluate_method(centroidMethod, a, b, obtuseCountOld, obtuseCountNew, newSteinerPoints, previousEnergy, newCdt);
+                selectedMethod->setEnergyDelta(centroidMethod->getEnergyDelta());
+                selectedMethod->setPheromonesDelta(centroidMethod->getPheromonesDelta());
+                selectedMethod->setAntColonyCdt(centroidMethod->getAntColonyCdt());
+                selectedMethod->setAntColonySteinerPoints(centroidMethod->getAntColonySteinerPoints());
+            } else {
+                int obtuseCountOld = TriangulationUtils::countObtuseTriangles(cdt);
+                int obtuseCountNew = TriangulationUtils::countObtuseTriangles(newCdt);
+                double previousEnergy = calculateEnergy(cdt, a, b, steinerPoints);
+                evaluate_method(selectedMethod, a, b, obtuseCountOld, obtuseCountNew, newSteinerPoints, previousEnergy, newCdt);
             }
         }
-
-        if (!improved) { // Apply randomization if no improvement
-            Point randomPoint = generateRandomPoint(cdt);
-            steinerPoints.push_back(randomPoint);
-            cdt.insert(randomPoint);
-            randomized = true;
+        // Save best triangulation method
+        for (auto method : methods)
+        {
+            if (bestMethod == nullptr || method->getEnergyDelta() < bestMethod->getEnergyDelta())
+            {
+                bestMethod = method;
+            }
         }
-    }
-
-    double average_p = p_sum / (L - 1);
-    std::cout << "Ant Colony Optimization Average Convergence Rate (p): " << average_p << std::endl;
-    if (randomized) {
-        std::cout << "Randomization was applied in Ant Colony Optimization." << std::endl;
+        // Update pheromones
+        for (auto method : methods)
+        {
+            update_pheromones(method, lambda);
+        }
+        cdt = bestMethod->getAntColonyCdt();
+        steinerPoints = bestMethod->getAntColonySteinerPoints();
+        //CGAL::draw(cdt);
     }
 }

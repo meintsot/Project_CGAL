@@ -26,28 +26,37 @@ InputData JsonUtils::parseInputJson(const std::string& filename) {
     input_data.region_boundary = input_json["region_boundary"].get<std::vector<int>>();
     input_data.num_constraints = input_json["num_constraints"];
     input_data.additional_constraints = input_json["additional_constraints"].get<std::vector<std::vector<int>>>();
-    input_data.method = input_json["method"];
-    input_data.delaunay = input_json["delaunay"];
-    input_data.parameters = input_json["parameters"];
-    if ( input_data.method == "ls" ){
-        input_data.L = input_data.parameters.at("L").get<int>(); 
-    }else if ( input_data.method == "sa" ){
-        input_data.alpha = input_data.parameters.at("alpha").get<double>();
-        input_data.beta = input_data.parameters.at("beta").get<double>();
-        input_data.L = input_data.parameters.at("L").get<int>(); 
-    } else if ( input_data.method == "ant" ){
-        input_data.alpha = input_data.parameters.at("alpha").get<double>();
-        input_data.beta = input_data.parameters.at("beta").get<double>();
-        input_data.xi = input_data.parameters.at("xi").get<double>();
-        input_data.psi = input_data.parameters.at("psi").get<double>();
-        input_data.lambda = input_data.parameters.at("lambda").get<double>(); 
-        input_data.kappa = input_data.parameters.at("kappa").get<double>();
-        input_data.L = input_data.parameters.at("L").get<int>(); 
+
+    // if (input_json.contains("method")) {
+    //         input_data.method = input_json["method"].get<std::string>();
+    //     } else {
+    //         input_data.method = "auto";
+    // }   
+    //input_data.delaunay = input_json["delaunay"];
+
+    input_data.method = input_json.value("method", "auto");      // Default: "auto"
+    input_data.delaunay = input_json.value("delaunay", true);   // Default: false
+
+
+    input_data.parameters = input_json.value("parameters", json::object()); // Default: empty object
+
+    if (input_data.method == "ls") {
+        input_data.L = input_data.parameters.value("L", 0);  // Default: 0
+    } else if (input_data.method == "sa") {
+        input_data.alpha = input_data.parameters.value("alpha", 0.0); // Default: 0.0
+        input_data.beta = input_data.parameters.value("beta", 0.0);
+        input_data.L = input_data.parameters.value("L", 0);
+    } else if (input_data.method == "ant") {
+        input_data.alpha = input_data.parameters.value("alpha", 0.0);
+        input_data.beta = input_data.parameters.value("beta", 0.0);
+        input_data.xi = input_data.parameters.value("xi", 0.0);
+        input_data.psi = input_data.parameters.value("psi", 0.0);
+        input_data.lambda = input_data.parameters.value("lambda", 0.0);
+        input_data.kappa = input_data.parameters.value("kappa", 0.0);
+        input_data.L = input_data.parameters.value("L", 0);
     }
-    
 
     
-
 
     return input_data;
 }

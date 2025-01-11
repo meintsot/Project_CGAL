@@ -17,27 +17,7 @@
 #include "projectionMethod.hpp"
 #include "algorithms.hpp"
 
-std::string classifyInput(const std::vector<Point>& boundary, const std::vector<std::pair<Point, Point>>& constraints) {
-    bool isConvex = TriangulationUtils::isConvexBoundary(boundary);
-    bool isAxisParallel = TriangulationUtils::isAxisParallel(boundary);
-    bool hasClosedConstraints = TriangulationUtils::areConstraintsClosed(constraints);
 
-    if (isConvex) {
-        if (constraints.empty()) {
-            return "ls"; // Convex boundary, no constraints
-        } else if (!hasClosedConstraints) {
-            return "ls"; // Convex boundary, open constraints
-        } else {
-            return "sa"; // Convex boundary, closed constraints
-        }
-    } else {
-        if (isAxisParallel) {
-            return "sa"; // Non-convex boundary, axis-parallel segments
-        } else {
-            return "ant"; // Irregular non-convex boundary
-        }
-    }
-}
 
 std::vector<Point> constructBoundary(const InputData& input_data) {
     std::vector<Point> boundary;
@@ -90,7 +70,8 @@ void perform_triangulation(const InputData& input_data, OutputData& output_data)
         constraints.emplace_back(p1, p2);
     }
 
-    auto algorithm = classifyInput(region_boundary, constraints);
+    //auto algorithm = TriangulationUtils::classifyInput(region_boundary, constraints);
+    auto algorithm = input_data.method;
 
     if ( algorithm == "ls" ){
         if ( input_data.delaunay == false )
@@ -107,7 +88,25 @@ void perform_triangulation(const InputData& input_data, OutputData& output_data)
             local_search(cdt, steinerPoints, input_data.L);
         ant_colonies(cdt, steinerPoints, input_data.alpha, input_data.beta, input_data.xi, input_data.psi, input_data.lambda, input_data.kappa,input_data.L);
 
+    } else if ( algorithm == "auto" ){
+        std::cout << " autoooooooooooooo " << std::endl;
     }
+
+    // this part is for the output edges
+    int next_index = input_data.points_x.size();  // Start Steiner indices after input points
+
+    // Loop through all vertices (including both input and Steiner points)
+    for (auto vit = cdt.vertices_begin(); vit != cdt.vertices_end(); ++vit) {
+        Vertex_handle vh = vit; 
+
+        Point p = vh->point(); 
+
+        // Check if the point already exists in the map (to avoid duplicates)
+        if (point_indices.find(p) == point_indices.end()) {
+            point_indices[p] = next_index++;  // Assign a new unique index
+        }
+    }
+
 
   
     // after
@@ -148,8 +147,13 @@ void perform_triangulation(const InputData& input_data, OutputData& output_data)
         Point p1 = vh1->point();
         Point p2 = vh2->point();
 
+        //std::cout << p1 << " " << p2 << std::endl;
+
         int idx1 = point_indices[p1];
         int idx2 = point_indices[p2];
+
+        //std::cout << idx1 << " " << idx2 << std::endl;
+
 
         output_data.edges.push_back({ idx1, idx2 });
     }
