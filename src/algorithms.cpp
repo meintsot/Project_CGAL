@@ -4,6 +4,7 @@
 #include <cmath>
 #include <cstdlib>
 #include <ctime>
+#include <chrono>
 
 
 #include "triangulation.hpp"
@@ -97,10 +98,23 @@ void local_search(CDT& cdt, std::vector<Point>& steinerPoints, int L) {
     int obtuse_previous = TriangulationUtils::countObtuseTriangles(cdt); // Initial obtuse triangle count
     bool randomized = false;
 
+    const double TOTAL_TIME_LIMIT = 30.0;
+    auto start_time = std::chrono::high_resolution_clock::now();
+
     while (!done) {
+
+        auto current_time = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double> elapsed = current_time - start_time;
+
+        if (elapsed.count() > TOTAL_TIME_LIMIT) {
+            std::cout << "Total time exceeded " << TOTAL_TIME_LIMIT << " seconds! Stopping." << std::endl;
+            break;
+        }
+
+
         done = true; 
         if (stopping_criterion++ == L) break;
-        std::cout << stopping_criterion << std::endl;
+        //std::cout << stopping_criterion << std::endl;
 
         for (auto face = cdt.finite_faces_begin(); face != cdt.finite_faces_end(); ++face) {
             Triangle triangle = cdt.triangle(face);
@@ -175,10 +189,22 @@ void simulated_annealing(CDT& cdt, std::vector<Point>& steinerPoints, double a, 
     double p_sum = 0.0; // Sum for p(n)
     int obtuse_previous = TriangulationUtils::countObtuseTriangles(cdt);
 
+    const double TOTAL_TIME_LIMIT = 30.0;
+    auto start_time = std::chrono::high_resolution_clock::now();
+
+
     while (T > 0) {
+
+        auto current_time = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double> elapsed = current_time - start_time;
+
+        if (elapsed.count() > TOTAL_TIME_LIMIT) {
+            std::cout << "Total time exceeded " << TOTAL_TIME_LIMIT << " seconds! Stopping." << std::endl;
+            break;
+        }
+
         counter++;
         bool improved = false;
-
 
         for (auto face = cdt.finite_faces_begin(); face != cdt.finite_faces_end(); ++face) {
             Triangle triangle = cdt.triangle(face);
@@ -225,7 +251,7 @@ void simulated_annealing(CDT& cdt, std::vector<Point>& steinerPoints, double a, 
         //     randomized = true;
         // }
 
-        std::cout << counter << std::endl;
+        //std::cout << counter << std::endl;
 
 
         T -= 1.0 / L;
@@ -284,10 +310,22 @@ void ant_colonies(CDT& cdt, std::vector<Point>& steinerPoints, double a, double 
     double p_sum = 0.0; // Sum for p(n)
     int obtuse_previous = TriangulationUtils::countObtuseTriangles(cdt);
     
+    const double TOTAL_TIME_LIMIT = 30.0;
+    auto start_time = std::chrono::high_resolution_clock::now();
+
     //int K = number_of_points / 4;
     int K = kappa;
     for (int c = 0; c < L; c++) // for each cycle
     {
+
+        auto current_time = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double> elapsed = current_time - start_time;
+
+        if (elapsed.count() > TOTAL_TIME_LIMIT) {
+            std::cout << "Total time exceeded " << TOTAL_TIME_LIMIT << " seconds! Stopping." << std::endl;
+            break;
+        }
+
         for (int ant = 0; ant < K; ant++)
         {
             auto obtuseTriangle = TriangulationUtils::getRandomObtuseTriangle(cdt); // select random obtuse triangle

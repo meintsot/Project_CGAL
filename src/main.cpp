@@ -90,9 +90,25 @@ void perform_triangulation(const InputData& input_data, OutputData& output_data)
 
     } else if ( algorithm == "auto" ){
         std::cout << " autoooooooooooooo " << std::endl;
-        std::cout << input_data.alpha << std::endl;
-        //simulated_annealing(cdt, steinerPoints, input_data.alpha, input_data.beta, input_data.L);
-        local_search(cdt, steinerPoints, 30);
+
+        CDT ls_cdt = cdt;   std::vector<Point> ls_steinerPoints;
+        CDT sa_cdt = cdt;   std::vector<Point> sa_steinerPoints;
+        CDT ant_cdt = cdt;  std::vector<Point> ant_steinerPoints;
+
+        local_search(ls_cdt, ls_steinerPoints, 500);
+        simulated_annealing(sa_cdt, sa_steinerPoints, 5, 1, 750);
+        ant_colonies(ant_cdt, ant_steinerPoints, 5.0, 0.2, 1.0, 2.0, 0.5, 10, 500);
+
+        int ls_obtuse_triangle_count = TriangulationUtils::countObtuseTriangles(ls_cdt);
+        int sa_obtuse_triangle_count = TriangulationUtils::countObtuseTriangles(sa_cdt);
+        int ant_obtuse_triangle_count = TriangulationUtils::countObtuseTriangles(ant_cdt);
+
+        std::cout << "ls obtuse triangles: " << ls_obtuse_triangle_count << std::endl;
+        std::cout << "sa obtuse triangles: " << sa_obtuse_triangle_count << std::endl;
+        std::cout << "ant obtuse triangles: " << ant_obtuse_triangle_count << std::endl;
+
+
+
     }
 
     // this part is for the output edges
