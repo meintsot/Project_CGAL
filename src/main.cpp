@@ -108,9 +108,9 @@ void perform_triangulation(const InputData& input_data, OutputData& output_data)
         CDT sa_cdt = cdt;   std::vector<Point> sa_steinerPoints;
         CDT ant_cdt = cdt;  std::vector<Point> ant_steinerPoints;
 
-        local_search(ls_cdt, ls_steinerPoints, 500);
-        simulated_annealing(sa_cdt, sa_steinerPoints, 5, 1, 750);
-        ant_colonies(ant_cdt, ant_steinerPoints, 5.0, 0.2, 1.0, 2.0, 0.5, 10, 50);
+        double ls_cr = local_search(ls_cdt, ls_steinerPoints, 500);
+        double sa_cr = simulated_annealing(sa_cdt, sa_steinerPoints, 5, 1, 750);
+        double ant_cr = ant_colonies(ant_cdt, ant_steinerPoints, 5.0, 0.2, 1.0, 2.0, 0.5, 10, 50);
 
         int ls_obtuse_triangle_count = TriangulationUtils::countObtuseTriangles(ls_cdt);
         int sa_obtuse_triangle_count = TriangulationUtils::countObtuseTriangles(sa_cdt);
@@ -124,11 +124,9 @@ void perform_triangulation(const InputData& input_data, OutputData& output_data)
         outFile << "Initial obtuse triangles: " << obtuse_triangle_count << std::endl;
 
 
-        outFile << "ls obtuse triangles: " << ls_obtuse_triangle_count << std::endl;
-        outFile << "sa obtuse triangles: " << sa_obtuse_triangle_count << std::endl;
-        outFile << "ant obtuse triangles: " << ant_obtuse_triangle_count << std::endl << std::endl;
-
-
+        outFile << "ls obtuse triangles: " << ls_obtuse_triangle_count << " Convergence Rate: " << ls_cr << " Steiner points: " << ls_steinerPoints.size() << std::endl;
+        outFile << "sa obtuse triangles: " << sa_obtuse_triangle_count << " Convergence Rate: " << sa_cr << " Steiner points: " << sa_steinerPoints.size() << std::endl;
+        outFile << "ant obtuse triangles: " << ant_obtuse_triangle_count << " Convergence Rate: " << ant_cr << " Steiner points: " << ant_steinerPoints.size() << std::endl << std::endl;
 
 
     }

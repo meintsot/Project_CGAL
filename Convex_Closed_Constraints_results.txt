@@ -1,0 +1,12 @@
+simple-polygon-exterior_40_ff947945
+Initial obtuse triangles: 49
+ls obtuse triangles: 23 Convergence Rate: 0.4498 Steiner points: 21
+sa obtuse triangles: 22 Convergence Rate: 0.159582 Steiner points: 80
+ant obtuse triangles: 36 Convergence Rate: 0.102665 Steiner points: 0
+
+simple-polygon-exterior_60_8670ab75
+Initial obtuse triangles: 61
+ls obtuse triangles: 32 Convergence Rate: 0.386883 Steiner points: 24
+sa obtuse triangles: 28 Convergence Rate: 0.0989597 Steiner points: 83
+ant obtuse triangles: 48 Convergence Rate: 0.049073 Steiner points: 7
+

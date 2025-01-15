@@ -89,12 +89,13 @@ int find_best_method(CDT cdt, Face_handle face){
 
 }
 
-void local_search(CDT& cdt, std::vector<Point>& steinerPoints, int L) {
+double local_search(CDT& cdt, std::vector<Point>& steinerPoints, int L) {
     TriangulationMethod* method = nullptr;
     bool done = false;
-    int stopping_criterion = 0;
+    int stopping_criterion = 1;
 
     double p_sum = 0.0; // Sum for p(n)
+    double p_n;
     int obtuse_previous = TriangulationUtils::countObtuseTriangles(cdt); // Initial obtuse triangle count
     bool randomized = false;
 
@@ -149,18 +150,21 @@ void local_search(CDT& cdt, std::vector<Point>& steinerPoints, int L) {
 
         int obtuse_current = TriangulationUtils::countObtuseTriangles(cdt);
         if (obtuse_previous > 0 && obtuse_current > 0) {
-            double p_n = std::log(static_cast<double>(obtuse_current) / obtuse_previous) /
+            p_n = std::log(static_cast<double>(obtuse_current) / obtuse_previous) /
                          std::log(static_cast<double>(stopping_criterion + 1) / stopping_criterion);
-            p_sum += p_n;
+            p_sum += std::abs(p_n);
         }
         obtuse_previous = obtuse_current; // Update for next iteration
     }
 
+    p_sum -= std::abs(p_n); // N-1, we don't want the last one
+
     double average_p = p_sum / (stopping_criterion - 1);
-    //std::cout << "Local Search Average Convergence Rate (p): " << average_p << std::endl;
+    std::cout << "Local Search Average Convergence Rate (p): " << average_p << std::endl;
     // if (randomized) {
     //     std::cout << "Randomization was applied in Local Search." << std::endl;
     // }
+    return average_p;
 }
 
 
@@ -177,16 +181,17 @@ double randomProbability() {
     return static_cast<double>(std::rand()) / RAND_MAX;
 }
 
-void simulated_annealing(CDT& cdt, std::vector<Point>& steinerPoints, double a, double b, int L) {
+double simulated_annealing(CDT& cdt, std::vector<Point>& steinerPoints, double a, double b, int L) {
     TriangulationMethod* method = nullptr;
     std::vector<Point> dummy_points;
     double energy = calculateEnergy(cdt, a, b, steinerPoints); // Initial energy
     double T = 1.0;
-    int counter = 0;
+    int counter = 1;
     bool randomized = false;
     std::srand(static_cast<unsigned>(std::time(nullptr)));
 
     double p_sum = 0.0; // Sum for p(n)
+    double p_n;
     int obtuse_previous = TriangulationUtils::countObtuseTriangles(cdt);
 
     const double TOTAL_TIME_LIMIT = 60.0;
@@ -203,7 +208,6 @@ void simulated_annealing(CDT& cdt, std::vector<Point>& steinerPoints, double a, 
             break;
         }
 
-        counter++;
         bool improved = false;
 
         for (auto face = cdt.finite_faces_begin(); face != cdt.finite_faces_end(); ++face) {
@@ -232,11 +236,13 @@ void simulated_annealing(CDT& cdt, std::vector<Point>& steinerPoints, double a, 
                     energy = newEnergy;
                     improved = true;
 
+                    counter++;
+
                     int obtuse_current = TriangulationUtils::countObtuseTriangles(cdt);
                     if (obtuse_previous > 0 && obtuse_current > 0) {
-                        double p_n = std::log(static_cast<double>(obtuse_current) / obtuse_previous) /
+                        p_n = std::log(static_cast<double>(obtuse_current) / obtuse_previous) /
                                      std::log(static_cast<double>(counter + 1) / counter);
-                        p_sum += p_n;
+                        p_sum += abs(p_n);
                     }
                     obtuse_previous = obtuse_current;
                     break;
@@ -257,11 +263,15 @@ void simulated_annealing(CDT& cdt, std::vector<Point>& steinerPoints, double a, 
         T -= 1.0 / L;
     }
 
+    p_sum -= std::abs(p_n);
+
     double average_p = p_sum / (counter - 1);
-    //std::cout << "Simulated Annealing Average Convergence Rate (p): " << average_p << std::endl;
+    std::cout << "Simulated Annealing Average Convergence Rate (p): " << average_p << std::endl;
     // if (randomized) {
     //     std::cout << "Randomization was applied in Simulated Annealing." << std::endl;
     // }
+
+    return average_p;
 }
 
 
@@ -286,7 +296,7 @@ void update_pheromones(TriangulationMethod* method, double pheromonesEvaporation
     method->setPheromones(pheromones);
 }
 
-void ant_colonies(CDT& cdt, std::vector<Point>& steinerPoints, double a, double b, double x , double y, double lambda, double kappa, int L) {
+double ant_colonies(CDT& cdt, std::vector<Point>& steinerPoints, double a, double b, double x , double y, double lambda, double kappa, int L) {
     int number_of_points = cdt.number_of_vertices();
     TriangulationMethod* bestMethod = nullptr;
     std::vector<TriangulationMethod*> methods = std::vector<TriangulationMethod*>(4);
@@ -308,8 +318,9 @@ void ant_colonies(CDT& cdt, std::vector<Point>& steinerPoints, double a, double 
     }
     
     double p_sum = 0.0; // Sum for p(n)
+    double p_n;
     int obtuse_previous = TriangulationUtils::countObtuseTriangles(cdt);
-    int counter = 0;
+    int counter = 1;
 
 
 
@@ -329,7 +340,6 @@ void ant_colonies(CDT& cdt, std::vector<Point>& steinerPoints, double a, double 
             std::cout << "Total time exceeded " << TOTAL_TIME_LIMIT << " seconds! Stopping." << std::endl;
             break;
         }
-        counter++;
 
         for (int ant = 0; ant < K; ant++)
         {
@@ -411,12 +421,22 @@ void ant_colonies(CDT& cdt, std::vector<Point>& steinerPoints, double a, double 
         steinerPoints = bestMethod->getAntColonySteinerPoints();
         //CGAL::draw(cdt);
 
+        counter++;
+        int obtuse_current = TriangulationUtils::countObtuseTriangles(cdt);
+        if (obtuse_previous > 0 && obtuse_current > 0) {
+            p_n = std::log(static_cast<double>(obtuse_current) / obtuse_previous) /
+                         std::log(static_cast<double>(counter + 1) / counter);
+            p_sum += std::abs(p_n);
+        }
+        obtuse_previous = obtuse_current; // Update for next iteration
+
     }
 
+    p_sum -= std::abs(p_n);
     double average_p = p_sum / (counter - 1);
-    //std::cout << "Ant Colony Average Convergence Rate (p): " << average_p << std::endl;
+    std::cout << "Ant Colony Average Convergence Rate (p): " << average_p << std::endl;
     // if (randomized) {
     //     std::cout << "Randomization was applied in Simulated Annealing." << std::endl;
     // }
-
+    return average_p;
 }
