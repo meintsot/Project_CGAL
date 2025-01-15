@@ -1,0 +1,78 @@
+ortho_10_d2723dcc
+Initial obtuse triangles: 4
+ls obtuse triangles: 2
+sa obtuse triangles: 1
+ant obtuse triangles: 4
+
+ortho_20_5a9e8244
+Initial obtuse triangles: 11
+ls obtuse triangles: 6
+sa obtuse triangles: 1
+ant obtuse triangles: 9
+
+ortho_20_e2aff192
+Initial obtuse triangles: 10
+ls obtuse triangles: 5
+sa obtuse triangles: 2
+ant obtuse triangles: 6
+
+ortho_40_56a6f463
+Initial obtuse triangles: 38
+ls obtuse triangles: 15
+sa obtuse triangles: 9
+ant obtuse triangles: 35
+
+ortho_40_df58ce3b
+Initial obtuse triangles: 24
+ls obtuse triangles: 14
+sa obtuse triangles: 12
+ant obtuse triangles: 24
+
+ortho_60_5c5796a0
+Initial obtuse triangles: 59
+ls obtuse triangles: 27
+sa obtuse triangles: 22
+ant obtuse triangles: 57
+
+ortho_60_c423f527
+Initial obtuse triangles: 50
+ls obtuse triangles: 34
+sa obtuse triangles: 22
+ant obtuse triangles: 46
+
+ortho_60_f744490d
+Initial obtuse triangles: 50
+ls obtuse triangles: 30
+sa obtuse triangles: 22
+ant obtuse triangles: 46
+
+ortho_80_06ee55d4
+Initial obtuse triangles: 65
+ls obtuse triangles: 37
+sa obtuse triangles: 45
+ant obtuse triangles: 60
+
+ortho_100_bd1e4a14
+Initial obtuse triangles: 85
+ls obtuse triangles: 51
+sa obtuse triangles: 54
+ant obtuse triangles: 72
+
+ortho_150_53eb4022
+Initial obtuse triangles: 133
+ls obtuse triangles: 88
+sa obtuse triangles: 88
+ant obtuse triangles: 115
+
+ortho_250_3b977f7e
+Initial obtuse triangles: 228
+ls obtuse triangles: 158
+sa obtuse triangles: 186
+ant obtuse triangles: 192
+
+ortho_250_6e6a66c2
+Initial obtuse triangles: 254
+ls obtuse triangles: 191
+sa obtuse triangles: 213
+ant obtuse triangles: 246
+

@@ -157,7 +157,7 @@ void local_search(CDT& cdt, std::vector<Point>& steinerPoints, int L) {
     }
 
     double average_p = p_sum / (stopping_criterion - 1);
-    std::cout << "Local Search Average Convergence Rate (p): " << average_p << std::endl;
+    //std::cout << "Local Search Average Convergence Rate (p): " << average_p << std::endl;
     // if (randomized) {
     //     std::cout << "Randomization was applied in Local Search." << std::endl;
     // }
@@ -258,7 +258,7 @@ void simulated_annealing(CDT& cdt, std::vector<Point>& steinerPoints, double a, 
     }
 
     double average_p = p_sum / (counter - 1);
-    std::cout << "Simulated Annealing Average Convergence Rate (p): " << average_p << std::endl;
+    //std::cout << "Simulated Annealing Average Convergence Rate (p): " << average_p << std::endl;
     // if (randomized) {
     //     std::cout << "Randomization was applied in Simulated Annealing." << std::endl;
     // }
@@ -299,22 +299,26 @@ void ant_colonies(CDT& cdt, std::vector<Point>& steinerPoints, double a, double 
     centroidMethod->setAntColonyCdt(cdt);
     centroidMethod->setPheromones(0.25); // 1 / number of methods
     centroidMethod->setEnergyDelta(0);
+
     // for each method, initialize pheromones
     for (auto method : methods) {
         method->setPheromones(0.25); // 1 / number of methods
         method->setAntColonyCdt(cdt);
         method->setEnergyDelta(0);
     }
-
-    int counter = 0;
+    
     double p_sum = 0.0; // Sum for p(n)
     int obtuse_previous = TriangulationUtils::countObtuseTriangles(cdt);
-    
+    int counter = 0;
+
+
+
     const double TOTAL_TIME_LIMIT = 60.0;
     auto start_time = std::chrono::high_resolution_clock::now();
 
     //int K = number_of_points / 4;
     int K = kappa;
+
     for (int c = 0; c < L; c++) // for each cycle
     {
 
@@ -325,9 +329,11 @@ void ant_colonies(CDT& cdt, std::vector<Point>& steinerPoints, double a, double 
             std::cout << "Total time exceeded " << TOTAL_TIME_LIMIT << " seconds! Stopping." << std::endl;
             break;
         }
+        counter++;
 
         for (int ant = 0; ant < K; ant++)
         {
+
             auto obtuseTriangle = TriangulationUtils::getRandomObtuseTriangle(cdt); // select random obtuse triangle
             // for each method calculate the probability based on pheromones and heuristic
             for (int i = 0; i < 4; i++)
@@ -346,6 +352,7 @@ void ant_colonies(CDT& cdt, std::vector<Point>& steinerPoints, double a, double 
             {
                 methodProbabilities[i] /= totalProbability;
             }
+
             // Select a method based on the probabilities
             double random = static_cast<double>(std::rand()) / RAND_MAX;
             double cumulativeProbability = 0;
@@ -360,6 +367,7 @@ void ant_colonies(CDT& cdt, std::vector<Point>& steinerPoints, double a, double 
                     break;
                 }
             }
+
             // Execute the selected method
             CDT newCdt = cdt;
             std::vector<Point> newSteinerPoints = steinerPoints;
@@ -383,24 +391,13 @@ void ant_colonies(CDT& cdt, std::vector<Point>& steinerPoints, double a, double 
                 double previousEnergy = calculateEnergy(cdt, a, b, steinerPoints);
                 evaluate_method(selectedMethod, a, b, obtuseCountOld, obtuseCountNew, newSteinerPoints, previousEnergy, newCdt);
             }
-
-            counter++;
-            int obtuse_current = TriangulationUtils::countObtuseTriangles(cdt);
-                if (obtuse_previous > 0 && obtuse_current > 0) {
-                    double p_n = std::log(static_cast<double>(obtuse_current) / obtuse_previous) /
-                                std::log(static_cast<double>(counter + 1) / counter);
-                    p_sum += p_n;
-                 }
-            obtuse_previous = obtuse_current;
-
-
-
         }
         // Save best triangulation method
         for (auto method : methods)
         {
             if (bestMethod == nullptr || method->getEnergyDelta() < bestMethod->getEnergyDelta())
             {
+
                 bestMethod = method;
             }
         }
@@ -409,12 +406,17 @@ void ant_colonies(CDT& cdt, std::vector<Point>& steinerPoints, double a, double 
         {
             update_pheromones(method, lambda);
         }
+
         cdt = bestMethod->getAntColonyCdt();
         steinerPoints = bestMethod->getAntColonySteinerPoints();
         //CGAL::draw(cdt);
+
     }
 
     double average_p = p_sum / (counter - 1);
-    std::cout << "Ant Colony Average Convergence Rate (p): " << average_p << std::endl;
+    //std::cout << "Ant Colony Average Convergence Rate (p): " << average_p << std::endl;
+    // if (randomized) {
+    //     std::cout << "Randomization was applied in Simulated Annealing." << std::endl;
+    // }
 
 }

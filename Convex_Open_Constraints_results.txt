@@ -1,0 +1,30 @@
+simple-polygon-exterior-20_20_0f96fb2c
+Number of obtuse triangles: 19
+ls obtuse triangles: 13
+sa obtuse triangles: 6
+ant obtuse triangles: 17
+
+simple-polygon-exterior-20_20_0f96fb2c
+Number of obtuse triangles: 19
+ls obtuse triangles: 13
+sa obtuse triangles: 2
+ant obtuse triangles: 15
+
+simple-polygon-exterior-20_20_0f96fb2c
+Number of obtuse triangles: 19
+ls obtuse triangles: 13
+sa obtuse triangles: 4
+ant obtuse triangles: 18
+
+simple-polygon-exterior-20_20_0f96fb2c
+Number of obtuse triangles: 19
+ls obtuse triangles: 13
+sa obtuse triangles: 4
+ant obtuse triangles: 17
+
+simple-polygon-exterior-20_20_0f96fb2c
+Initial obtuse triangles: 19
+ls obtuse triangles: 13
+sa obtuse triangles: 4
+ant obtuse triangles: 15
+

@@ -36,4 +36,6 @@ public:
 
     static std::string classifyInput(const std::vector<Point>& boundary, const std::vector<std::pair<Point, Point>>& constraints);
 
+    static std::string getCategory(const std::vector<Point>& boundary, const std::vector<std::pair<Point, Point>>& constraints);
+
 };

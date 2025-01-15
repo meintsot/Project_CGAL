@@ -73,6 +73,19 @@ void perform_triangulation(const InputData& input_data, OutputData& output_data)
     auto algorithm = TriangulationUtils::classifyInput(region_boundary, constraints);
     algorithm = input_data.method;
 
+    std::string category = TriangulationUtils::getCategory(region_boundary, constraints);
+    std::string outputFilename = "../" + category + "_results.txt";
+
+    std::ofstream outFile(outputFilename, std::ios::app);
+    if (!outFile) {
+        std::cerr << "Error opening file: " << outputFilename << std::endl;
+        exit(1);
+    }
+
+    //outFile << " test     Processing input: " << std::endl;
+
+
+
     if ( algorithm == "ls" ){
         if ( input_data.delaunay == false )
             local_search(cdt, steinerPoints, input_data.L);
@@ -89,7 +102,7 @@ void perform_triangulation(const InputData& input_data, OutputData& output_data)
         ant_colonies(cdt, steinerPoints, input_data.alpha, input_data.beta, input_data.xi, input_data.psi, input_data.lambda, input_data.kappa,input_data.L);
 
     } else if ( algorithm == "auto" ){
-        std::cout << " autoooooooooooooo " << std::endl;
+        //std::cout << " autoooooooooooooo " << std::endl;
 
         CDT ls_cdt = cdt;   std::vector<Point> ls_steinerPoints;
         CDT sa_cdt = cdt;   std::vector<Point> sa_steinerPoints;
@@ -97,7 +110,7 @@ void perform_triangulation(const InputData& input_data, OutputData& output_data)
 
         local_search(ls_cdt, ls_steinerPoints, 500);
         simulated_annealing(sa_cdt, sa_steinerPoints, 5, 1, 750);
-        ant_colonies(ant_cdt, ant_steinerPoints, 5.0, 0.2, 1.0, 2.0, 0.5, 10, 500);
+        ant_colonies(ant_cdt, ant_steinerPoints, 5.0, 0.2, 1.0, 2.0, 0.5, 10, 50);
 
         int ls_obtuse_triangle_count = TriangulationUtils::countObtuseTriangles(ls_cdt);
         int sa_obtuse_triangle_count = TriangulationUtils::countObtuseTriangles(sa_cdt);
@@ -106,6 +119,15 @@ void perform_triangulation(const InputData& input_data, OutputData& output_data)
         std::cout << "ls obtuse triangles: " << ls_obtuse_triangle_count << std::endl;
         std::cout << "sa obtuse triangles: " << sa_obtuse_triangle_count << std::endl;
         std::cout << "ant obtuse triangles: " << ant_obtuse_triangle_count << std::endl;
+        
+        outFile << input_data.instance_uid << std::endl;
+        outFile << "Initial obtuse triangles: " << obtuse_triangle_count << std::endl;
+
+
+        outFile << "ls obtuse triangles: " << ls_obtuse_triangle_count << std::endl;
+        outFile << "sa obtuse triangles: " << sa_obtuse_triangle_count << std::endl;
+        outFile << "ant obtuse triangles: " << ant_obtuse_triangle_count << std::endl << std::endl;
+
 
 
 
@@ -199,7 +221,7 @@ int main(int argc, const char* argv[]) {
     // Write output JSON
     JsonUtils::writeOutputJson(output_filename, output_data);
 
-    std::cout << "Triangulation completed. Output written to " << output_filename << std::endl;
+    //std::cout << "Triangulation completed. Output written to " << output_filename << std::endl;
 
     return 0;
 }
