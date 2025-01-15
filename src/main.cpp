@@ -56,7 +56,7 @@ void perform_triangulation(const InputData& input_data, OutputData& output_data)
     }
 
     // before
-    CGAL::draw(cdt);
+    //CGAL::draw(cdt);
     int obtuse_triangle_count = TriangulationUtils::countObtuseTriangles(cdt);
     std::cout << "Number of obtuse triangles: " << obtuse_triangle_count << std::endl;
 
@@ -129,9 +129,9 @@ void perform_triangulation(const InputData& input_data, OutputData& output_data)
 
   
     // after
-    CGAL::draw(cdt);
+    //CGAL::draw(cdt);
     obtuse_triangle_count = TriangulationUtils::countObtuseTriangles(cdt);
-    std::cout << "Number of obtuse triangles: " << obtuse_triangle_count << std::endl;
+    //std::cout << "Number of obtuse triangles: " << obtuse_triangle_count << std::endl;
 
     // Prepare output data
     output_data.content_type = "CG_SHOP_2025_Solution";

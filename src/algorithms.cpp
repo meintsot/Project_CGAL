@@ -98,7 +98,7 @@ void local_search(CDT& cdt, std::vector<Point>& steinerPoints, int L) {
     int obtuse_previous = TriangulationUtils::countObtuseTriangles(cdt); // Initial obtuse triangle count
     bool randomized = false;
 
-    const double TOTAL_TIME_LIMIT = 30.0;
+    const double TOTAL_TIME_LIMIT = 60.0;
     auto start_time = std::chrono::high_resolution_clock::now();
 
     while (!done) {
@@ -189,7 +189,7 @@ void simulated_annealing(CDT& cdt, std::vector<Point>& steinerPoints, double a, 
     double p_sum = 0.0; // Sum for p(n)
     int obtuse_previous = TriangulationUtils::countObtuseTriangles(cdt);
 
-    const double TOTAL_TIME_LIMIT = 30.0;
+    const double TOTAL_TIME_LIMIT = 60.0;
     auto start_time = std::chrono::high_resolution_clock::now();
 
 
@@ -310,7 +310,7 @@ void ant_colonies(CDT& cdt, std::vector<Point>& steinerPoints, double a, double 
     double p_sum = 0.0; // Sum for p(n)
     int obtuse_previous = TriangulationUtils::countObtuseTriangles(cdt);
     
-    const double TOTAL_TIME_LIMIT = 30.0;
+    const double TOTAL_TIME_LIMIT = 60.0;
     auto start_time = std::chrono::high_resolution_clock::now();
 
     //int K = number_of_points / 4;
@@ -415,6 +415,6 @@ void ant_colonies(CDT& cdt, std::vector<Point>& steinerPoints, double a, double 
     }
 
     double average_p = p_sum / (counter - 1);
-    std::cout << "Simulated Annealing Average Convergence Rate (p): " << average_p << std::endl;
+    std::cout << "Ant Colony Average Convergence Rate (p): " << average_p << std::endl;
 
 }
