@@ -1,3 +1,4 @@
+ID,Initial obtuse triangles,Local Search obtuse triangles,Local Search Convergence Rate,Local Search Steiner points,Simulated Annealing obtuse triangles,Simulated Annealing Convergence Rate,Simulated Annealing Steiner points,Ant Colony obtuse triangles,Ant Colony Convergence Rate,Ant Colony Steiner points
 simple-polygon_10_272aa6ea,8,3,0.795394,5,1,0.418221,24,7,0.0146479,0
 simple-polygon_10_297edd18,10,4,0.709573,6,0,1.48491,16,9,0.00519702,1
 simple-polygon_20_0dda68ed,22,8,0.677846,11,6,0.397945,46,13,0.116924,9
@@ -10,3 +11,12 @@ simple-polygon_80_48c9df87,89,56,0.277747,25,48,0.202284,115,73,0.0722865,3
 simple-polygon_80_7b8f6c4c,40,10,0.879292,27,5,0.737905,56,37,0.0112825,1
 simple-polygon_100_4b4ba391,65,36,0.320097,24,32,0.20368,95,54,0.346447,2
 simple-polygon_100_4ee8f447,101,67,0.249598,27,62,0.0674563,95,89,0.151548,7
+simple-polygon_100_6101abad,88,56,0.274503,26,56,0.106584,78,74,0.0805269,4
+simple-polygon_100_cb23308c,139,100,0.183568,33,88,0.162244,172,136,0.00107625,1
+simple-polygon_150_743d6b9c,173,96,0.331807,60,123,0.119508,117,154,0.198208,7
+simple-polygon_150_b42a5724,198,132,0.20894,50,157,0.056916,114,188,0.210773,6
+simple-polygon_150_c0cf1e9c,168,92,0.3394,60,103,0.118339,144,150,0.259481,5
+simple-polygon_150_f24b0f8e,102,56,0.353856,34,67,0.0877191,89,93,0.0464846,9
+simple-polygon_250_432b4814,249,166,0.21446,53,208,0.0563543,57,231,0.233496,9
+simple-polygon_250_6e9d9c26,124,88,0.192073,28,97,0.0500146,78,110,0.0313528,2
+simple-polygon_250_c02755d7,244,177,0.16989,46,208,0.029611,79,207,0.123433,1
