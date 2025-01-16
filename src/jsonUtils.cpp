@@ -35,7 +35,7 @@ InputData JsonUtils::parseInputJson(const std::string& filename) {
     //input_data.delaunay = input_json["delaunay"];
 
     input_data.method = input_json.value("method", "auto");      // Default: "auto"
-    input_data.delaunay = input_json.value("delaunay", true);   // Default: false
+    input_data.delaunay = input_json.value("delaunay", true);   // Default: true
 
 
     input_data.parameters = input_json.value("parameters", json::object()); // Default: empty object
@@ -47,7 +47,7 @@ InputData JsonUtils::parseInputJson(const std::string& filename) {
         //input_data.beta = input_data.parameters.value("beta", 0.0);
         //input_data.L = input_data.parameters.value("L", 0);
     //} else if (input_data.method == "ant") {
-        input_data.alpha = input_data.parameters.value("alpha", 3.5);
+        input_data.alpha = input_data.parameters.value("alpha", 5);
         input_data.beta = input_data.parameters.value("beta", 1.0);
         input_data.xi = input_data.parameters.value("xi", 1.0);
         input_data.psi = input_data.parameters.value("psi", 2.0);
@@ -71,6 +71,7 @@ void JsonUtils::writeOutputJson(const std::string& filename, const OutputData& o
     output_json["obtuse_count"] = output_data.obtuse_triangle_count;
     output_json["method"] = output_data.method;
     output_json["parameters"] = output_data.parameters;
+    output_json["randomization"] = output_data.randomization_used;
 
     std::ofstream output_file(filename);
     output_file << output_json.dump(4);

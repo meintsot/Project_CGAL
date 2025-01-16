@@ -18,7 +18,6 @@
 #include "algorithms.hpp"
 
 
-
 std::vector<Point> constructBoundary(const InputData& input_data) {
     std::vector<Point> boundary;
 
@@ -70,63 +69,72 @@ void perform_triangulation(const InputData& input_data, OutputData& output_data)
         constraints.emplace_back(p1, p2);
     }
 
-    auto algorithm = TriangulationUtils::classifyInput(region_boundary, constraints);
-    algorithm = input_data.method;
+    
 
-    std::string category = TriangulationUtils::getCategory(region_boundary, constraints);
-    std::string outputFilename = "../" + category + "_results.csv";
+    // std::string category = TriangulationUtils::getCategory(region_boundary, constraints);
+    // std::string outputFilename = "../" + category + "_results_test_test.csv";
 
-    std::ofstream outFile(outputFilename, std::ios::app);
-    if (!outFile) {
-        std::cerr << "Error opening file: " << outputFilename << std::endl;
-        exit(1);
-    }
+    // std::ofstream outFile(outputFilename, std::ios::app);
+    // if (!outFile) {
+    //     std::cerr << "Error opening file: " << outputFilename << std::endl;
+    //     exit(1);
+    // }
 
     //outFile << " test     Processing input: " << std::endl;
 
 
+    auto algorithm = TriangulationUtils::classifyInput(region_boundary, constraints);
+
 
     if ( algorithm == "ls" ){
-        if ( input_data.delaunay == false )
-            local_search(cdt, steinerPoints, input_data.L);
+        
         local_search(cdt, steinerPoints, input_data.L);
+        //output_data.parameters = {  "L": 500 };
+        output_data.parameters = { input_data.L };
+
 
     }else if ( algorithm == "sa" ){
-        if ( input_data.delaunay == false )
-            local_search(cdt, steinerPoints, input_data.L);
-        simulated_annealing(cdt, steinerPoints, input_data.alpha, input_data.beta, input_data.L);
+        
+        simulated_annealing(cdt, steinerPoints, input_data.alpha, input_data.beta, 750);
+        //output_data.parameters = {  "alpha": 2.0, "beta": 5.0, "L": 500 };
+        output_data.parameters = { input_data.alpha, input_data.beta, 750 };
+
+
 
     } else if ( algorithm == "ant" ){
-        if ( input_data.delaunay == false )
-            local_search(cdt, steinerPoints, input_data.L);
+        
         ant_colonies(cdt, steinerPoints, input_data.alpha, input_data.beta, input_data.xi, input_data.psi, input_data.lambda, input_data.kappa,input_data.L);
+        output_data.parameters = { input_data.alpha, input_data.beta, input_data.xi, input_data.psi, input_data.lambda, input_data.kappa,input_data.L };
+
 
     } else if ( algorithm == "auto" ){
         //std::cout << " autoooooooooooooo " << std::endl;
 
-        CDT ls_cdt = cdt;   std::vector<Point> ls_steinerPoints;
-        CDT sa_cdt = cdt;   std::vector<Point> sa_steinerPoints;
-        CDT ant_cdt = cdt;  std::vector<Point> ant_steinerPoints;
+        // this is how we run our tests
 
-        double ls_cr = local_search(ls_cdt, ls_steinerPoints, 500);
-        double sa_cr = simulated_annealing(sa_cdt, sa_steinerPoints, 5, 1, 750);
-        double ant_cr = ant_colonies(ant_cdt, ant_steinerPoints, 5.0, 0.2, 1.0, 2.0, 0.5, 10, 50);
+        // CDT ls_cdt = cdt;   std::vector<Point> ls_steinerPoints;
+        // CDT sa_cdt = cdt;   std::vector<Point> sa_steinerPoints;
+        // CDT ant_cdt = cdt;  std::vector<Point> ant_steinerPoints;
 
-        int ls_obtuse_triangle_count = TriangulationUtils::countObtuseTriangles(ls_cdt);
-        int sa_obtuse_triangle_count = TriangulationUtils::countObtuseTriangles(sa_cdt);
-        int ant_obtuse_triangle_count = TriangulationUtils::countObtuseTriangles(ant_cdt);
+        // double ls_cr = local_search(ls_cdt, ls_steinerPoints, 500);
+        // double sa_cr = simulated_annealing(sa_cdt, sa_steinerPoints, 5, 1, 750);
+        // double ant_cr = ant_colonies(ant_cdt, ant_steinerPoints, 5.0, 0.2, 1.0, 2.0, 0.5, 10, 50);
 
-        std::cout << "ls obtuse triangles: " << ls_obtuse_triangle_count << std::endl;
-        std::cout << "sa obtuse triangles: " << sa_obtuse_triangle_count << std::endl;
-        std::cout << "ant obtuse triangles: " << ant_obtuse_triangle_count << std::endl;
+        // int ls_obtuse_triangle_count = TriangulationUtils::countObtuseTriangles(ls_cdt);
+        // int sa_obtuse_triangle_count = TriangulationUtils::countObtuseTriangles(sa_cdt);
+        // int ant_obtuse_triangle_count = TriangulationUtils::countObtuseTriangles(ant_cdt);
+
+        // std::cout << "ls obtuse triangles: " << ls_obtuse_triangle_count << std::endl;
+        // std::cout << "sa obtuse triangles: " << sa_obtuse_triangle_count << std::endl;
+        // std::cout << "ant obtuse triangles: " << ant_obtuse_triangle_count << std::endl;
         
-        outFile << input_data.instance_uid << ",";
-        outFile  << obtuse_triangle_count << ","; //  Initial obtuse triangles
+        // outFile << input_data.instance_uid << ",";
+        // outFile  << obtuse_triangle_count << ","; //  Initial obtuse triangles
 
 
-        outFile << ls_obtuse_triangle_count << "," << ls_cr << "," << ls_steinerPoints.size() << ",";
-        outFile << sa_obtuse_triangle_count << "," << sa_cr << "," << sa_steinerPoints.size() << ",";
-        outFile << ant_obtuse_triangle_count << "," << ant_cr << "," << ant_steinerPoints.size() << std::endl;
+        // outFile << ls_obtuse_triangle_count << "," << ls_cr << "," << ls_steinerPoints.size() << ",";
+        // outFile << sa_obtuse_triangle_count << "," << sa_cr << "," << sa_steinerPoints.size() << ",";
+        // outFile << ant_obtuse_triangle_count << "," << ant_cr << "," << ant_steinerPoints.size() << std::endl;
 
 
     }
@@ -157,8 +165,9 @@ void perform_triangulation(const InputData& input_data, OutputData& output_data)
     output_data.content_type = "CG_SHOP_2025_Solution";
     output_data.instance_uid = input_data.instance_uid;
     output_data.obtuse_triangle_count = obtuse_triangle_count;
-    output_data.parameters = input_data.parameters;
-    output_data.method = input_data.method;
+    //output_data.parameters = input_data.parameters;
+    output_data.method = algorithm;
+    output_data.randomization_used = false;
 
     // Steiner points x and y coordinates
     for (const auto& p : steinerPoints) {

@@ -63,4 +63,5 @@ struct OutputData {
     std::vector<std::vector<int>> edges;
     std::string method;
     nlohmann::json parameters;
+    bool randomization_used;
 };

@@ -160,7 +160,7 @@ double local_search(CDT& cdt, std::vector<Point>& steinerPoints, int L) {
     p_sum -= std::abs(p_n); // N-1, we don't want the last one
 
     double average_p = p_sum / (stopping_criterion - 1);
-    std::cout << "Local Search Average Convergence Rate (p): " << average_p << std::endl;
+    //std::cout << "Local Search Average Convergence Rate (p): " << average_p << std::endl;
     // if (randomized) {
     //     std::cout << "Randomization was applied in Local Search." << std::endl;
     // }
@@ -194,7 +194,7 @@ double simulated_annealing(CDT& cdt, std::vector<Point>& steinerPoints, double a
     double p_n;
     int obtuse_previous = TriangulationUtils::countObtuseTriangles(cdt);
 
-    const double TOTAL_TIME_LIMIT = 60.0;
+    const double TOTAL_TIME_LIMIT = 80.0;
     auto start_time = std::chrono::high_resolution_clock::now();
 
 
@@ -266,7 +266,7 @@ double simulated_annealing(CDT& cdt, std::vector<Point>& steinerPoints, double a
     p_sum -= std::abs(p_n);
 
     double average_p = p_sum / (counter - 1);
-    std::cout << "Simulated Annealing Average Convergence Rate (p): " << average_p << std::endl;
+    //std::cout << "Simulated Annealing Average Convergence Rate (p): " << average_p << std::endl;
     // if (randomized) {
     //     std::cout << "Randomization was applied in Simulated Annealing." << std::endl;
     // }
@@ -434,7 +434,7 @@ double ant_colonies(CDT& cdt, std::vector<Point>& steinerPoints, double a, doubl
 
     p_sum -= std::abs(p_n);
     double average_p = p_sum / (counter - 1);
-    std::cout << "Ant Colony Average Convergence Rate (p): " << average_p << std::endl;
+    //std::cout << "Ant Colony Average Convergence Rate (p): " << average_p << std::endl;
     // if (randomized) {
     //     std::cout << "Randomization was applied in Simulated Annealing." << std::endl;
     // }
