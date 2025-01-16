@@ -1,0 +1,13 @@
+ID,Initial obtuse triangles,Local Search obtuse triangles,Local Search Convergence Rate,Local Search Steiner points,Simulated Annealing obtuse triangles,Simulated Annealing Convergence Rate,Simulated Annealing Steiner points,Ant Colony obtuse triangles,Ant Colony Convergence Rate,Ant Colony Steiner points
+ortho_10_d2723dcc,4,2,0.854756,1,2,0.301178,4,4,0,0
+ortho_20_5a9e8244,11,6,0.514607,4,1,0.338078,23,8,0.0608232,0
+ortho_20_e2aff192,10,5,0.54932,5,6,0.183689,38,8,0.0862336,2
+ortho_40_56a6f463,38,15,0.517653,16,11,0.253755,102,36,0.00430973,2
+ortho_40_df58ce3b,24,14,0.363996,10,9,0.133672,64,22,0.0354361,2
+ortho_60_f744490d,50,30,0.312676,17,27,0.140061,63,41,0.0535746,2
+ortho_60_c423f527,50,34,0.251395,11,26,0.180006,82,40,0.0725595,3
+ortho_80_06ee55d4,65,37,0.325968,24,43,0.0895324,62,50,0.147757,4
+ortho_100_bd1e4a14,85,51,0.300599,29,60,0.0746771,76,73,0.0535567,2
+ortho_150_53eb4022,133,88,0.224854,35,100,0.0798498,89,126,0.213173,3
+ortho_250_3b977f7e,228,158,0.206897,53,189,0.0554359,98,180,0.112631,16
+ortho_250_6e6a66c2,254,191,0.154673,52,214,0.059551,65,249,0.10307,2

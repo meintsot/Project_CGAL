@@ -74,7 +74,7 @@ void perform_triangulation(const InputData& input_data, OutputData& output_data)
     algorithm = input_data.method;
 
     std::string category = TriangulationUtils::getCategory(region_boundary, constraints);
-    std::string outputFilename = "../" + category + "_results.txt";
+    std::string outputFilename = "../" + category + "_results.csv";
 
     std::ofstream outFile(outputFilename, std::ios::app);
     if (!outFile) {
@@ -120,13 +120,13 @@ void perform_triangulation(const InputData& input_data, OutputData& output_data)
         std::cout << "sa obtuse triangles: " << sa_obtuse_triangle_count << std::endl;
         std::cout << "ant obtuse triangles: " << ant_obtuse_triangle_count << std::endl;
         
-        outFile << input_data.instance_uid << std::endl;
-        outFile << "Initial obtuse triangles: " << obtuse_triangle_count << std::endl;
+        outFile << input_data.instance_uid << ",";
+        outFile  << obtuse_triangle_count << ","; //  Initial obtuse triangles
 
 
-        outFile << "ls obtuse triangles: " << ls_obtuse_triangle_count << " Convergence Rate: " << ls_cr << " Steiner points: " << ls_steinerPoints.size() << std::endl;
-        outFile << "sa obtuse triangles: " << sa_obtuse_triangle_count << " Convergence Rate: " << sa_cr << " Steiner points: " << sa_steinerPoints.size() << std::endl;
-        outFile << "ant obtuse triangles: " << ant_obtuse_triangle_count << " Convergence Rate: " << ant_cr << " Steiner points: " << ant_steinerPoints.size() << std::endl << std::endl;
+        outFile << ls_obtuse_triangle_count << "," << ls_cr << "," << ls_steinerPoints.size() << ",";
+        outFile << sa_obtuse_triangle_count << "," << sa_cr << "," << sa_steinerPoints.size() << ",";
+        outFile << ant_obtuse_triangle_count << "," << ant_cr << "," << ant_steinerPoints.size() << std::endl;
 
 
     }
