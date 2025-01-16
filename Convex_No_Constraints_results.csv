@@ -1,3 +1,4 @@
+ID,Initial obtuse triangles,Local Search obtuse triangles,Local Search Convergence Rate,Local Search Steiner points,Simulated Annealing obtuse triangles,Simulated Annealing Convergence Rate,Simulated Annealing Steiner points,Ant Colony obtuse triangles,Ant Colony Convergence Rate,Ant Colony Steiner points
 point-set_10_7451a2a9,5,3,0.51678,2,1,0.177733,11,5,0,0
 point-set_10_97578aae,6,3,0.628636,3,2,0.347019,26,6,0,0
 point-set_10_ae0fff93,6,4,0.40844,2,2,0.0960857,6,6,0,0

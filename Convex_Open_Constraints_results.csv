@@ -1,3 +1,4 @@
+ID,Initial obtuse triangles,Local Search obtuse triangles,Local Search Convergence Rate,Local Search Steiner points,Simulated Annealing obtuse triangles,Simulated Annealing Convergence Rate,Simulated Annealing Steiner points,Ant Colony obtuse triangles,Ant Colony Convergence Rate,Ant Colony Steiner points
 simple-polygon-exterior_10_310dc6c7,5,1,1.43384,4,0,0.803913,11,5,0,0
 simple-polygon-exterior_10_40642b31,7,6,0.190091,1,2,0.206574,28,7,0,0
 simple-polygon-exterior_10_74050e4d,7,3,0.718365,4,1,0.334303,13,7,0,0
@@ -51,3 +52,22 @@ simple-polygon-exterior-20_40_8ad14096,39,33,0.120811,6,13,0.400785,95,36,0.0280
 simple-polygon-exterior-20_40_b9ab4f03,47,22,0.462699,21,12,0.325663,84,34,0.102597,0
 simple-polygon-exterior-20_60_28a85662,76,50,0.245315,23,50,0.0941871,66,74,0.00131544,1
 simple-polygon-exterior-20_60_53ad6d23,45,22,0.434028,16,15,0.23838,93,36,0.0547855,1
+simple-polygon-exterior-20_60_57858065,66,41,0.287714,17,35,0.112207,71,58,0.191682,5
+simple-polygon-exterior-20_60_57cd1db6,64,43,0.231448,20,39,0.145511,44,58,0.223806,4
+simple-polygon-exterior-20_60_6088b7a9,58,39,0.234893,16,38,0.0837508,84,57,0.0693644,2
+simple-polygon-exterior-20_60_8221c868,73,50,0.223527,19,46,0.145359,96,71,0.00137026,1
+simple-polygon-exterior-20_60_e6f13145,82,57,0.217349,22,63,0.0737602,57,78,0.207985,3
+simple-polygon-exterior-20_80_1c5fcde7,87,56,0.262262,27,59,0.0500529,88,75,0.060066,6
+simple-polygon-exterior-20_80_889602ae,86,65,0.171753,16,69,0.0410025,66,82,0.00669428,2
+simple-polygon-exterior-20_100_512f0fc4,65,37,0.327425,23,31,0.232428,97,53,0.0655406,1
+simple-polygon-exterior-20_100_7ed1ca87,113,75,0.222441,30,87,0.0738191,77,109,0.054743,2
+simple-polygon-exterior-20_100_8bfbe418,105,61,0.32103,36,67,0.16301,86,100,0.0320172,2
+simple-polygon-exterior-20_100_8d1c2e30,64,39,0.277253,20,45,0.143644,83,63,0.410492,1
+simple-polygon-exterior-20_100_8ff7a64d,109,77,0.19354,26,78,0.089397,98,93,0.0580553,6
+simple-polygon-exterior-20_100_c256488f,113,71,0.268714,35,72,0.0937198,106,90,0.0828283,4
+simple-polygon-exterior-20_150_41e0c5f0,165,93,0.314034,56,94,0.203707,146,140,0.0662122,7
+simple-polygon-exterior-20_150_7768dd44,161,96,0.284649,47,120,0.076,119,140,0.0253521,5
+simple-polygon-exterior-20_250_0c9fa44e,289,207,0.16586,55,216,0.110214,124,248,0.0758154,6
+simple-polygon-exterior-20_250_4441b4ca,248,180,0.171726,45,189,0.066167,143,243,0.231004,3
+simple-polygon-exterior-20_250_823ed1ae,283,215,0.155195,53,215,0.0940564,148,263,0.0611406,6
+simple-polygon-exterior-20_250_eb5ab92f,253,186,0.163349,46,226,0.0446056,58,234,0.0833658,6
